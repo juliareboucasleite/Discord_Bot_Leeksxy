@@ -112,9 +112,9 @@ async def on_ready():
     print(f"ID do Bot: {bot.user.id}")
     print(f"Conectado em {len(bot.guilds)} servidores")
     await bot.change_presence(
-        activity=discord.Activity(
-            type=discord.ActivityType.listening,
-            name="'ajuda"
+        activity=discord.Streaming(
+            name="Leeksxy",
+            url="https://www.twitch.tv/leeksxy"
         )
     )
 
