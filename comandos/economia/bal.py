@@ -10,7 +10,7 @@ class Balance(commands.Cog):
     def get_db_connection(self):
         return sqlite3.connect(self.db_path)
 
-    @commands.command(name='bal', aliases=['balance', 'saldo', 'dinheiro', 'money'], help='Verifica seu saldo de moedas ou o de outro membro. Uso: \'bal [\@membro]')
+    @commands.command(name='bal', aliases=[], help='Verifica seu saldo de moedas ou o de outro membro. Uso: \'bal [@membro]')
     @commands.bot_has_permissions(send_messages=True)
     async def balance_command(self, ctx, member: discord.Member = None):
         if member is None:
