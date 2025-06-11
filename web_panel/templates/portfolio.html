@@ -150,30 +150,32 @@
     </nav>
 
     <main class="container section">
-        {% if github_user %}
-        <div class="github-profile">
-            <img src="{{ github_user.avatar_url }}" alt="{{ github_user.name or github_user.login }} Avatar">
-            <div class="github-info">
-                <h2>{{ github_user.name or github_user.login }}</h2>
-                {% if github_user.bio %}
-                <p>{{ github_user.bio }}</p>{% endif %}
-                <p>
-                    <i class="fas fa-users"></i> {{ github_user.followers }} Seguidores
-                    <span style="margin-left: 15px;"></span>
-                    <i class="fas fa-code-branch"></i> {{ github_user.public_repos }} Repositórios Públicos
-                </p>
-                <a href="{{ github_user.html_url }}" target="_blank"><i class="fab fa-github"></i> Ver Perfil no GitHub</a>
+        <div class="grid" style="grid-template-columns: 1fr; margin-bottom: 25px;">
+            {% if user %}
+            <div class="card github-profile-card">
+                <div class="github-profile-header">
+                    <img src="{{ user.avatar_url }}" alt="{{ user.name or user.login }} Avatar" class="github-profile-avatar">
+                    <div class="github-info">
+                        <h2>{{ user.name or user.login }}</h2>
+                        {% if user.bio %}
+                        <p>{{ user.bio }}</p>{% endif %}
+                        <p class="github-stats">
+                            <i class="fas fa-users"></i> {{ user.followers }} Seguidores
+                            <span style="margin-left: 15px;"></span>
+                            <i class="fas fa-code-branch"></i> {{ user.public_repos }} Repositórios Públicos
+                        </p>
+                    </div>
+                </div>
+                <a href="{{ user.html_url }}" target="_blank" class="btn primary small" style="margin-top: 15px;"><i class="fab fa-github"></i> Ver Perfil no GitHub</a>
             </div>
+            {% endif %}
         </div>
-        {% else %}
-        <p class="lead-text">Não foi possível carregar as informações do perfil do GitHub.</p>
-        {% endif %}
 
         <h3>Meus Repositórios Públicos</h3>
         {% if repos %}
-        <div class="repo-grid">
+        <div class="repo-grid grid">
             {% for repo in repos %}
-            <div class="repo-card">
+            <div class="repo-card card">
                 <h4>{{ repo.name }}</h4>
                 <p>{{ repo.description or "Sem descrição." }}</p>
                 <div class="repo-footer">
@@ -182,7 +184,7 @@
                     <span><i class="fas fa-star"></i> {{ repo.stargazers_count }}</span>
                     <span><i class="fas fa-eye"></i> {{ repo.watchers_count }}</span>
                 </div>
-                <a href="{{ repo.html_url }}" target="_blank" class="repo-link">Ver no GitHub <i class="fas fa-external-link-alt"></i></a>
+                <a href="{{ repo.html_url }}" target="_blank" class="repo-link btn secondary small">Ver no GitHub <i class="fas fa-external-link-alt"></i></a>
             </div>
             {% endfor %}
         </div>

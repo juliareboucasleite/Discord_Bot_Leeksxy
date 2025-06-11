@@ -861,3 +861,109 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* --- Portfolio Page Specific Styles --- */
+
+.github-profile-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 30px;
+}
+
+.github-profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.github-profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 4px solid var(--brand-color);
+    box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+.github-info h2 {
+    font-size: 2.2em;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+.github-info p {
+    font-size: 1.1em;
+    color: var(--text-light);
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.github-stats {
+    font-size: 0.95em;
+    color: var(--text-muted);
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.github-stats i {
+    color: var(--brand-color);
+}
+
+.repo-grid.grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.repo-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.repo-card p {
+    flex-grow: 1;
+    margin-bottom: 15px;
+}
+
+.repo-card .repo-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: var(--text-muted);
+}
+
+.repo-card .repo-footer span {
+    display: flex;
+    align-items: center;
+}
+
+.repo-card .repo-footer i {
+    margin-right: 5px;
+    color: var(--brand-color);
+}
+
+
+/* Adjustments for buttons inside cards */
+
+.card .btn {
+    width: fit-content;
+    align-self: center;
+}
+
+@media (max-width: 768px) {
+    .github-profile-avatar {
+        width: 120px;
+        height: 120px;
+    }
+    .github-info h2 {
+        font-size: 1.8em;
+    }
+}
