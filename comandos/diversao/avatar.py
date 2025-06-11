@@ -8,7 +8,7 @@ class Avatar(commands.Cog):
     @commands.command(
         name="avatar",
         description="Mostra o avatar de um usuário",
-        aliases=["av", "pfp", "fotoperfil", "perfil", "profile"]
+        aliases=["av", "pfp", "fotoperfil"]
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def avatar(self, ctx, membro: discord.Member = None):
