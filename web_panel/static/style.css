@@ -1,18 +1,30 @@
 /* Base Styles */
 
 :root {
-    --bg-primary: #f8f9fa;
-    --bg-secondary: #e9ecef;
-    --bg-card: #f1f3f5;
-    --text-color: #212529;
-    --text-light: #343a40;
-    --text-muted: #495057;
-    --brand-color: #6c757d;
-    --brand-color-light: #adb5bd;
-    --brand-color-shadow: rgba(108, 117, 125, 0.2);
-    --border-color: #dee2e6;
-    --shadow-color: rgba(0, 0, 0, 0.2);
-    --card-shadow: rgba(0, 0, 0, 0.15);
+    --bg-primary: #1a1a1a;
+    /* Fundo principal escuro */
+    --bg-secondary: #2c2f33;
+    /* Fundo secundário para navbar e footer (escuro) */
+    --bg-card: #2c2f33;
+    /* Cor do card (escuro) */
+    --text-color: #ffffff;
+    /* Cor do texto principal (claro) */
+    --text-light: #b9bbbe;
+    /* Cor do texto secundário (claro) */
+    --text-muted: #99aab5;
+    /* Cor do texto mais discreto (claro) */
+    --brand-color: #7289DA;
+    /* Cor da marca (roxo Discord) */
+    --brand-color-light: #99aab5;
+    /* Versão mais clara da cor da marca */
+    --brand-color-shadow: rgba(114, 137, 218, 0.3);
+    /* Sombra da cor da marca */
+    --border-color: #4f545c;
+    /* Cor da borda (escuro) */
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    /* Cor da sombra */
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    /* Sombra do card */
 }
 
 body {
@@ -361,7 +373,8 @@ body {
 
 /* Features Grid */
 
-.features-grid .grid {
+.features-grid .grid,
+.repo-grid.grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 30px;
@@ -865,11 +878,19 @@ body {
 
 /* --- Portfolio Page Specific Styles --- */
 
+.github-profile-wrapper {
+    display: flex;
+    justify-content: center;
+    /* Centraliza o card do perfil */
+    margin-bottom: 25px;
+}
+
 .github-profile-card {
     padding: 20px;
     text-align: center;
     max-width: 450px;
-    margin: 0 auto 25px auto;
+    width: 100%;
+    /* Garante que o card ocupe a largura máxima definida */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -894,11 +915,15 @@ body {
 .github-info h2 {
     font-size: 1.8em;
     margin-bottom: 3px;
+    color: var(--text-color);
+    /* Garante que o texto seja da cor do tema */
 }
 
 .github-info p {
     font-size: 1em;
     margin-bottom: 8px;
+    color: var(--text-light);
+    /* Garante que o texto seja da cor do tema */
 }
 
 .github-stats {
@@ -908,16 +933,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    color: var(--text-muted);
+    /* Garante que o texto seja da cor do tema */
 }
 
-.repo-grid.grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+.github-stats i {
+    color: var(--brand-color);
 }
 
 .repo-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
     text-align: left;
     padding: 25px;
 }
@@ -935,27 +959,20 @@ body {
 }
 
 .repo-card .repo-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-    font-size: 0.9em;
     color: var(--text-muted);
 }
 
-.repo-card .repo-footer span {
-    display: flex;
-    align-items: center;
-}
-
 .repo-card .repo-footer i {
-    margin-right: 5px;
     color: var(--brand-color);
 }
+
+
+/* Ajustes para botões dentro de cards */
 
 .card .btn {
     width: fit-content;
     align-self: center;
+    /* Centraliza o botão dentro do card */
     margin-top: auto;
 }
 
