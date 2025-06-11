@@ -76,14 +76,14 @@ class Favoritar(commands.Cog):
         if cursor.rowcount > 0:
             embed = discord.Embed(
                 title="💔 Música Desfavoritada",
-                description=f"A música contendo \`{music_title_or_url}\` foi removida dos seus favoritos.",
+                description=f"A música contendo `{music_title_or_url}` foi removida dos seus favoritos.",
                 color=0xE8E8E8
             )
             await ctx.send(embed=embed)
         else:
             embed = discord.Embed(
                 title="❓ Música Não Encontrada",
-                description=f"Não encontrei nenhuma música \`{music_title_or_url}\` em seus favoritos para desfavoritar.",
+                description=f"Não encontrei nenhuma música `{music_title_or_url}` em seus favoritos para desfavoritar.",
                 color=0xFFD700
             )
             await ctx.send(embed=embed)
