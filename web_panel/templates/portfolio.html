@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leeksxy Bot - Portfólio</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=10">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=13">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='Photos/Foto_Perfil.png') }}" type="image/x-icon">
@@ -16,7 +16,7 @@
 
     <main class="container section">
         {% if user %}
-        <div class="github-profile-container">
+        <div class="github-profile-wrapper">
             <div class="card github-profile-card">
                 <div class="github-profile-header">
                     <img src="{{ user.avatar_url }}" alt="{{ user.name or user.login }} Avatar" class="github-profile-avatar">
