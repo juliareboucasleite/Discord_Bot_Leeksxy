@@ -904,11 +904,20 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    text-align: left;
+    padding: 25px;
+}
+
+.repo-card h4 {
+    margin-top: 0;
+    font-size: 1.4em;
+    color: var(--text-color);
 }
 
 .repo-card p {
     flex-grow: 1;
     margin-bottom: 15px;
+    color: var(--text-light);
 }
 
 .repo-card .repo-footer {
@@ -930,12 +939,15 @@ body {
     color: var(--brand-color);
 }
 
-
-/* Adjustments for buttons inside cards */
-
 .card .btn {
     width: fit-content;
-    align-self: center;
+    align-self: flex-start;
+    margin-top: auto;
+}
+
+.repo-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px var(--card-shadow);
 }
 
 @media (max-width: 768px) {
