@@ -106,7 +106,8 @@ def send_email():
 
 @app.route('/invite')
 def invite():
-    return "Página de convite do bot"
+    # Redireciona para o URL de autorização do bot no Discord
+    return redirect(DISCORD_AUTH_URL)
 
 @app.route('/dashboard')
 def dashboard():
