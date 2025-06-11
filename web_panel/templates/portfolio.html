@@ -33,26 +33,24 @@
     </nav>
 
     <main class="container section">
-        <div class="grid" style="grid-template-columns: 1fr; margin-bottom: 25px;">
-            {% if user %}
-            <div class="card github-profile-card">
-                <div class="github-profile-header">
-                    <img src="{{ user.avatar_url }}" alt="{{ user.name or user.login }} Avatar" class="github-profile-avatar">
-                    <div class="github-info">
-                        <h2>{{ user.name or user.login }}</h2>
-                        {% if user.bio %}
-                        <p>{{ user.bio }}</p>{% endif %}
-                        <p class="github-stats">
-                            <i class="fas fa-users"></i> {{ user.followers }} Seguidores
-                            <span style="margin-left: 15px;"></span>
-                            <i class="fas fa-code-branch"></i> {{ user.public_repos }} Repositórios Públicos
-                        </p>
-                    </div>
+        {% if user %}
+        <div class="card github-profile-card">
+            <div class="github-profile-header">
+                <img src="{{ user.avatar_url }}" alt="{{ user.name or user.login }} Avatar" class="github-profile-avatar">
+                <div class="github-info">
+                    <h2>{{ user.name or user.login }}</h2>
+                    {% if user.bio %}
+                    <p>{{ user.bio }}</p>{% endif %}
+                    <p class="github-stats">
+                        <i class="fas fa-users"></i> {{ user.followers }} Seguidores
+                        <span style="margin-left: 15px;"></span>
+                        <i class="fas fa-code-branch"></i> {{ user.public_repos }} Repositórios Públicos
+                    </p>
                 </div>
-                <a href="{{ user.html_url }}" target="_blank" class="btn primary small" style="margin-top: 15px;"><i class="fab fa-github"></i> Ver Perfil no GitHub</a>
             </div>
-            {% endif %}
+            <a href="{{ user.html_url }}" target="_blank" class="btn primary small" style="margin-top: 15px;"><i class="fab fa-github"></i> Ver Perfil no GitHub</a>
         </div>
+        {% endif %}
 
         <h3>Meus Repositórios Públicos</h3>
         {% if repos %}
