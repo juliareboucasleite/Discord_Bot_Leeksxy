@@ -83,7 +83,7 @@ python main.py
 
 <h2>📝 Licença</h2>
 
-<p>Este projeto está licenciado sob a <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0</a>. Você é livre para usar, modificar e distribuir, desde que mantenha os créditos e use a mesma licença.</p>
+<p>Este projeto é <strong>proprietário</strong>. Nenhuma parte deste código pode ser copiada, modificada, distribuída ou utilizada sem autorização explícita da autora. Todos os direitos reservados à <a href="https://github.com/juliareboucasleite">@juliareboucasleite</a>.</p>
 
 <hr />
 
