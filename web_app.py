@@ -124,13 +124,15 @@ def dashboard():
                 # Filter for guilds where the bot is in
                 # For a real bot, you'd check if the bot is in the guild
                 # and if the user has permissions to manage the bot
-                guilds_data.append({
-                    "id": guild['id'],
-                    "name": guild['name'],
-                    "icon": guild['icon'],
-                    "can_manage": True if guild['owner'] else False, # Simplified: assume owner can manage
-                    "custom_prefix": "'" # Placeholder, ideally fetched from bot's actual data
-                })
+                guild_can_manage = True if guild['owner'] else False # Simplified: assume owner can manage
+                if guild_can_manage: # Only add guilds the user can manage
+                    guilds_data.append({
+                        "id": guild['id'],
+                        "name": guild['name'],
+                        "icon": guild['icon'],
+                        "can_manage": guild_can_manage, 
+                        "custom_prefix": "'" # Placeholder, ideally fetched from bot's actual data
+                    })
         except requests.exceptions.RequestException as e:
             print(f"Error fetching guilds: {e}")
             # Handle error, maybe redirect to login or show a message
