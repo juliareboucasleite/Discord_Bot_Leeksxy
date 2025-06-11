@@ -5,7 +5,9 @@ import logging
 import asyncio
 import sqlite3
 import sys
+from fuzzywuzzy import process
 from dotenv import load_dotenv
+from contextlib import contextmanager
 
 load_dotenv()
 
@@ -15,7 +17,14 @@ if not TOKEN:
     sys.exit(1)
 
 # Configurar logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('bot.log'),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
 
@@ -27,68 +36,75 @@ bot = commands.Bot(command_prefix="'", intents=intents, help_command=None)
 
 DATABASE = 'dados.db'
 
+@contextmanager
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    try:
+        yield conn
+    finally:
+        conn.close()
+
 # Função para inicializar o banco de dados
 async def setup_db():
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS favoritas (
-            user_id INTEGER,
-            guild_id INTEGER,
-            title TEXT,
-            url TEXT,
-            PRIMARY KEY (user_id, guild_id, url)
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS history (
-            guild_id INTEGER,
-            user_id INTEGER,
-            title TEXT,
-            url TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS guild_settings (
-            guild_id INTEGER PRIMARY KEY,
-            welcome_channel_id INTEGER,
-            leave_channel_id INTEGER,
-            autorole_id INTEGER
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS reaction_roles (
-            guild_id INTEGER,
-            message_id INTEGER,
-            emoji TEXT,
-            role_id INTEGER,
-            PRIMARY KEY (guild_id, message_id, emoji)
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS warnings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            guild_id INTEGER,
-            moderator_id INTEGER,
-            reason TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS user_economy (
-            user_id INTEGER,
-            guild_id INTEGER,
-            balance INTEGER DEFAULT 0,
-            last_daily TEXT,
-            last_work TEXT,
-            PRIMARY KEY (user_id, guild_id)
-        )
-    ''')
-    conn.commit()
-    conn.close()
-    print("✅ Banco de dados inicializado e tabelas 'favoritas', 'history', 'guild_settings', 'reaction_roles', 'warnings' e 'user_economy' verificadas.")
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS favoritas (
+                user_id INTEGER,
+                guild_id INTEGER,
+                title TEXT,
+                url TEXT,
+                PRIMARY KEY (user_id, guild_id, url)
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS history (
+                guild_id INTEGER,
+                user_id INTEGER,
+                title TEXT,
+                url TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS guild_settings (
+                guild_id INTEGER PRIMARY KEY,
+                welcome_channel_id INTEGER,
+                leave_channel_id INTEGER,
+                autorole_id INTEGER
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS reaction_roles (
+                guild_id INTEGER,
+                message_id INTEGER,
+                emoji TEXT,
+                role_id INTEGER,
+                PRIMARY KEY (guild_id, message_id, emoji)
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS warnings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                guild_id INTEGER,
+                moderator_id INTEGER,
+                reason TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_economy (
+                user_id INTEGER,
+                guild_id INTEGER,
+                balance INTEGER DEFAULT 0,
+                last_daily TEXT,
+                last_work TEXT,
+                PRIMARY KEY (user_id, guild_id)
+            )
+        ''')
+        conn.commit()
+    print("✅ Banco de dados inicializado e tabelas verificadas.")
 
 @bot.event
 async def on_ready():
@@ -98,21 +114,18 @@ async def on_ready():
     await bot.change_presence(
         activity=discord.Activity(
             type=discord.ActivityType.listening,
-            name="comandos do bot | 'ajuda"
+            name="'ajuda"
         )
     )
 
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        command_name = ctx.message.content.split(' ')[0][len(bot.command_prefix):] # Remove o prefixo para pegar o nome do comando
-        all_commands = [cmd.name for cmd in bot.commands] # Lista todos os comandos do bot
+        command_name = ctx.message.content.split(' ')[0][len(bot.command_prefix):]
+        all_commands = [cmd.name for cmd in bot.commands]
         
-        # Tenta encontrar a melhor correspondência
         best_match = process.extractOne(command_name, all_commands)
         
-        # fuzzywuzzy retorna (melhor_correspondencia, pontuação)
-        # Definimos um limite de similaridade, por exemplo, 70
         if best_match and best_match[1] >= 70:
             suggestion = best_match[0]
             embed = discord.Embed(
@@ -124,216 +137,175 @@ async def on_command_error(ctx, error):
         else:
             embed = discord.Embed(
                 title="❌ Comando Não Encontrado",
-                description=f"O comando `'{command_name}` não existe.",
+                description=f"O comando `'{command_name}` não existe. Use `'ajuda` para ver a lista de comandos disponíveis.",
                 color=0xFF0000
             )
             await ctx.send(embed=embed)
+    elif isinstance(error, commands.MissingPermissions):
+        embed = discord.Embed(
+            title="❌ Permissões Insuficientes",
+            description="Você não tem permissão para usar este comando.",
+            color=0xFF0000
+        )
+        await ctx.send(embed=embed)
+    elif isinstance(error, commands.MissingRequiredArgument):
+        embed = discord.Embed(
+            title="❌ Argumento Faltando",
+            description=f"Faltou o argumento: {error.param.name}\nUse `'ajuda {ctx.command.name}` para ver como usar este comando.",
+            color=0xFF0000
+        )
+        await ctx.send(embed=embed)
     else:
-        # Outros erros de comando podem ser tratados aqui ou logados
-        print(f"DEBUG: Ocorreu um erro no comando '{ctx.command}': {error}")
-        # Para erros não tratados, você pode enviar uma mensagem genérica ou apenas logar.
-        # await ctx.send(f"❌ Ocorreu um erro ao executar o comando: {error}")
+        logger.error(f"Erro não tratado no comando '{ctx.command}': {error}")
+        embed = discord.Embed(
+            title="❌ Erro",
+            description="Ocorreu um erro ao executar o comando. Por favor, tente novamente mais tarde.",
+            color=0xFF0000
+        )
+        await ctx.send(embed=embed)
 
 @bot.event
 async def on_member_join(member):
-    # if member.bot: # Ignorar bots que entram no servidor
-    #     return
-
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT welcome_channel_id, autorole_id FROM guild_settings WHERE guild_id = ?", (member.guild.id,))
-    settings = cursor.fetchone()
-    conn.close()
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT welcome_channel_id, autorole_id FROM guild_settings WHERE guild_id = ?", (member.guild.id,))
+        settings = cursor.fetchone()
 
     if settings:
         welcome_channel_id, autorole_id = settings
 
-        # Enviar mensagem de boas-vindas
         if welcome_channel_id:
             channel = bot.get_channel(welcome_channel_id)
             if channel:
                 embed = discord.Embed(
                     title="👋 Bem-Vindo(a)!",
                     description=f"Seja bem-vindo(a), {member.mention}, ao servidor **{member.guild.name}**!",
-                    color=0x7289DA # Cor azul Discord
+                    color=0x7289DA
                 )
                 embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
                 embed.set_footer(text=f"Membro #{len(member.guild.members)}")
                 await channel.send(embed=embed)
 
-        # Atribuir autorole
         if autorole_id:
             role = member.guild.get_role(autorole_id)
             if role:
                 try:
                     await member.add_roles(role)
-                    print(f"✅ Cargo {role.name} atribuído a {member.name}")
+                    logger.info(f"Cargo {role.name} atribuído a {member.name}")
                 except discord.Forbidden:
-                    print(f"❌ Permissões insuficientes para atribuir o cargo {role.name} para {member.name}")
+                    logger.error(f"Permissões insuficientes para atribuir o cargo {role.name} para {member.name}")
                 except Exception as e:
-                    print(f"❌ Erro ao atribuir cargo a {member.name}: {e}")
+                    logger.error(f"Erro ao atribuir cargo a {member.name}: {e}")
 
 @bot.event
 async def on_member_remove(member):
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT leave_channel_id FROM guild_settings WHERE guild_id = ?", (member.guild.id,))
-    settings = cursor.fetchone()
-    conn.close()
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT leave_channel_id FROM guild_settings WHERE guild_id = ?", (member.guild.id,))
+        settings = cursor.fetchone()
 
-    if settings and settings[0]: # Se leave_channel_id estiver definido
+    if settings and settings[0]:
         leave_channel_id = settings[0]
         channel = bot.get_channel(leave_channel_id)
         if channel:
             embed = discord.Embed(
                 title="👋 Adeus!",
                 description=f"{member.display_name} deixou o servidor. Sentiremos sua falta!",
-                color=0xFF0000 # Cor vermelha
+                color=0xFF0000
             )
             embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
             await channel.send(embed=embed)
 
 @bot.event
 async def on_raw_reaction_add(payload):
-    print(f"[DEBUG] on_raw_reaction_add acionado por: {payload.member.display_name} (ID: {payload.user_id})")
-    if payload.member.bot: # Ignorar reações de bots
-        print(f"[DEBUG] Reação de bot ({payload.member.display_name}) ignorada.")
+    if payload.member.bot:
         return
 
     guild_id = payload.guild_id
     message_id = payload.message_id
-    print(f"[DEBUG] Guild ID: {guild_id}, Message ID: {message_id}, Emoji raw: {payload.emoji}")
 
-    if payload.emoji.id: # É um emoji personalizado (tem um ID)
-        if payload.emoji.animated:
-            normalized_emoji = f'a:{payload.emoji.name}:{payload.emoji.id}'
-        else:
-            normalized_emoji = f'{payload.emoji.name}:{payload.emoji.id}'
-    else: # É um emoji Unicode padrão (não tem ID)
-        normalized_emoji = payload.emoji.name # Isso será '✅' para o emoji de checkmark
-    print(f"[DEBUG] Emoji normalizado: {normalized_emoji}")
+    if payload.emoji.id:
+        normalized_emoji = f'a:{payload.emoji.name}:{payload.emoji.id}' if payload.emoji.animated else f'{payload.emoji.name}:{payload.emoji.id}'
+    else:
+        normalized_emoji = payload.emoji.name
 
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT role_id FROM reaction_roles WHERE guild_id = ? AND message_id = ? AND emoji = ?",
-                   (guild_id, message_id, normalized_emoji))
-    result = cursor.fetchone()
-    conn.close()
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT role_id FROM reaction_roles WHERE guild_id = ? AND message_id = ? AND emoji = ?",
+                      (guild_id, message_id, normalized_emoji))
+        result = cursor.fetchone()
 
     if result:
         role_id = result[0]
-        print(f"[DEBUG] Cargo ID encontrado no DB: {role_id}")
         guild = bot.get_guild(guild_id)
         if guild:
             role = guild.get_role(role_id)
             try:
                 member = await guild.fetch_member(payload.user_id)
-                print(f"[DEBUG] Membro fetch: {member.display_name} (ID: {member.id})")
             except discord.NotFound:
-                print(f"[DEBUG] Membro com ID {payload.user_id} não encontrado na guild {guild_id}.")
-                member = None # Define como None se não encontrar
+                logger.error(f"Membro com ID {payload.user_id} não encontrado na guild {guild_id}.")
+                return
 
             if role and member:
-                print(f"[DEBUG] Tentando adicionar cargo {role.name} a {member.display_name}.")
                 try:
                     await member.add_roles(role)
-                    print(f"✅ Cargo {role.name} adicionado a {member.display_name} via reação.")
+                    logger.info(f"Cargo {role.name} adicionado a {member.display_name} via reação.")
                 except discord.Forbidden:
-                    print(f"❌ Permissões insuficientes para adicionar o cargo {role.name} para {member.display_name}.")
+                    logger.error(f"Permissões insuficientes para adicionar o cargo {role.name} para {member.display_name}.")
                 except Exception as e:
-                    print(f"❌ Erro ao adicionar cargo via reação para {member.display_name}: {e}")
-            else:
-                print(f"[DEBUG] Role ou Member é None. Role: {bool(role)}, Member: {bool(member)}")
-        else:
-            print(f"[DEBUG] Guild com ID {guild_id} não encontrada.")
-    else:
-        print(f"[DEBUG] Nenhuma configuração de cargo por reação encontrada para Message ID: {message_id}, Emoji: {normalized_emoji}")
+                    logger.error(f"Erro ao adicionar cargo via reação para {member.display_name}: {e}")
 
 @bot.event
 async def on_raw_reaction_remove(payload):
-    print(f"[DEBUG] on_raw_reaction_remove acionado por: {payload.user_id}")
     guild_id = payload.guild_id
     message_id = payload.message_id
 
-    # Quando a reação é removida por um bot, o user_id é o ID do bot.
-    # Se o usuário é o próprio bot, não faça nada.
-    if payload.user_id == bot.user.id:
-        print(f"[DEBUG] Reação removida pelo próprio bot ({payload.user_id}) ignorada.")
-        return
-
-    if payload.emoji.id: # É um emoji personalizado (tem um ID)
-        if payload.emoji.animated:
-            normalized_emoji = f'a:{payload.emoji.name}:{payload.emoji.id}'
-        else:
-            normalized_emoji = f'{payload.emoji.name}:{payload.emoji.id}'
-    else: # É um emoji Unicode padrão (não tem ID)
+    if payload.emoji.id:
+        normalized_emoji = f'a:{payload.emoji.name}:{payload.emoji.id}' if payload.emoji.animated else f'{payload.emoji.name}:{payload.emoji.id}'
+    else:
         normalized_emoji = payload.emoji.name
-    print(f"[DEBUG] Guild ID: {guild_id}, Message ID: {message_id}, Emoji normalizado: {normalized_emoji}")
 
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT role_id FROM reaction_roles WHERE guild_id = ? AND message_id = ? AND emoji = ?",
-                   (guild_id, message_id, normalized_emoji))
-    result = cursor.fetchone()
-    conn.close()
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT role_id FROM reaction_roles WHERE guild_id = ? AND message_id = ? AND emoji = ?",
+                      (guild_id, message_id, normalized_emoji))
+        result = cursor.fetchone()
 
     if result:
         role_id = result[0]
-        print(f"[DEBUG] Cargo ID encontrado no DB para remoção: {role_id}")
         guild = bot.get_guild(guild_id)
         if guild:
             role = guild.get_role(role_id)
             try:
                 member = await guild.fetch_member(payload.user_id)
-                print(f"[DEBUG] Membro fetch para remoção: {member.display_name} (ID: {member.id})")
             except discord.NotFound:
-                print(f"[DEBUG] Membro com ID {payload.user_id} não encontrado na guild {guild_id} para remoção.")
-                member = None
+                logger.error(f"Membro com ID {payload.user_id} não encontrado na guild {guild_id}.")
+                return
 
             if role and member:
-                print(f"[DEBUG] Tentando remover cargo {role.name} de {member.display_name}.")
                 try:
                     await member.remove_roles(role)
-                    print(f"✅ Cargo {role.name} removido de {member.display_name} via remoção de reação.")
+                    logger.info(f"Cargo {role.name} removido de {member.display_name} via reação.")
                 except discord.Forbidden:
-                    print(f"❌ Permissões insuficientes para remover o cargo {role.name} de {member.display_name}.")
+                    logger.error(f"Permissões insuficientes para remover o cargo {role.name} de {member.display_name}.")
                 except Exception as e:
-                    print(f"❌ Erro ao remover cargo via reação para {member.display_name}: {e}")
-            else:
-                print(f"[DEBUG] Role ou Member é None para remoção. Role: {bool(role)}, Member: {bool(member)}")
-        else:
-            print(f"[DEBUG] Guild com ID {guild_id} não encontrada para remoção.")
-    else:
-        print(f"[DEBUG] Nenhuma configuração de cargo por reação encontrada para remoção para Message ID: {message_id}, Emoji: {normalized_emoji}")
+                    logger.error(f"Erro ao remover cargo via reação de {member.display_name}: {e}")
 
 async def setup_comandos():
-    print("🔄 Iniciando carregamento dos comandos...")
-    for root, _, files in os.walk("./comandos"):
-        for file in files:
-            if file.endswith(".py") and file != "__init__.py":
-                path = os.path.splitext(os.path.relpath(os.path.join(root, file), "./"))[0].replace(os.sep, ".")
-                if file == "utils.py":  # Ignorar o arquivo utils.py
-                    print(f"Skipping util file: {path}")
-                    continue
-                print(f"🔌 Carregando: {path}")
-                try:
-                    await bot.load_extension(path)
-                    print(f"✅ Comando {path} carregado com sucesso!")
-                except Exception as e:
-                    print(f"❌ Erro ao carregar {path}: {e}")
+    for folder in os.listdir('comandos'):
+        if os.path.isdir(os.path.join('comandos', folder)) and not folder.startswith('__'):
+            try:
+                await bot.load_extension(f'comandos.{folder}')
+                print(f"✅ Módulo {folder} carregado com sucesso!")
+            except Exception as e:
+                print(f"❌ Erro ao carregar módulo {folder}: {e}")
 
 async def main():
     await setup_db()
     await setup_comandos()
-    try:
-        await bot.start(TOKEN)
-    except KeyboardInterrupt:
-        print("Bot desligado manualmente.")
-    except Exception as e:
-        print(f"Erro ao iniciar o bot: {e}")
+    await bot.start(TOKEN)
 
 if __name__ == "__main__":
-    print("🚀 Iniciando o bot...")
     asyncio.run(main())
 
 # Note: Replace the token with your actual bot token.
