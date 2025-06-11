@@ -12,24 +12,7 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <a href="/" class="navbar-brand">
-                <img src="{{ url_for('static', filename='Photos/Foto_Perfil.png') }}" alt="Leeksxy Bot Logo" class="logo-img">
-                <span class="logo-text">Leeksxy Bot</span>
-                <span class="bot-tags">Bot</span>
-            </a>
-            <div class="navbar-right-items">
-                <a href="/comandos" class="commands-menu-toggle">Comandos</a> {% if user %}
-                <div class="user-profile">
-                    <img src="{{ user.avatar_url }}" alt="User Avatar" class="avatar-tiny">
-                    <span>{{ user.username }}#{{ user.discriminator }}</span>
-                </div>
-                <a href="/logout" class="btn secondary">Logout</a> {% else %}
-                <a href="/login" class="btn primary"><i class="fab fa-discord"></i> Login com Discord</a> {% endif %}
-            </div>
-        </div>
-    </nav>
+    {% include 'menu.html' %}
 
     <main class="container section">
         <h3>Lista de Comandos</h3>
@@ -48,7 +31,7 @@
     <footer class="footer">
         <div class="container">
             <p>&copy; 2025 Leeksxy Bot. Todos os direitos reservados.</p>
-            <p>Feito com ❤️ por Leeksxy</p>
+            <p>Feito com ❤️ por <a href="/portfolio" style="color: #7289DA; text-decoration: none;">Leeksxy</a></p>
         </div>
     </footer>
 </body>
