@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snoopy Bot - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='Photos/Foto_Perfil.png') }}" type="image/x-icon">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="navbar-brand">
+                <img src="{{ url_for('static', filename='Photos/Foto_Perfil.png') }}" alt="Snoopy Bot Logo" class="logo-img">
+                <span class="logo-text">Snoopy Bot</span>
+                <span class="bot-tags">Bot</span>
+            </a>
+            <div class="navbar-right-items">
+                <a href="/comandos" class="commands-menu-toggle">Comandos</a> {% if user %}
+                <div class="user-profile">
+                    <img src="{{ user.avatar_url }}" alt="User Avatar" class="avatar-tiny">
+                    <span>{{ user.username }}#{{ user.discriminator }}</span>
+                </div>
+                <a href="/logout" class="btn secondary">Logout</a> {% else %}
+                <a href="/login" class="btn primary"><i class="fab fa-discord"></i> Login com Discord</a> {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container content">
+            <div class="hero-text">
+                <h2>Bem-vindo ao Dashboard do Snoopy Bot!</h2>
+                <p>Aqui você poderá gerenciar as configurações do seu bot, ver estatísticas e muito mais.</p>
+                <div class="hero-buttons">
+                    <a href="/invite" class="btn primary"><i class="fab fa-discord"></i> Convidar Bot</a>
+                    <a href="/dashboard" class="btn secondary">Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h3>Seus Servidores:</h3>
+            <p class="lead-text">Gerencie os servidores onde o Snoopy Bot está presente.</p>
+            <div class="guild-grid">
+                {% for guild in guilds %}
+                <div class="guild-card {% if guild.can_manage %}manageable-guild{% endif %}">
+                    <div class="guild-header">
+                        {% if guild.icon %}
+                        <img src="https://cdn.discordapp.com/icons/{{ guild.id }}/{{ guild.icon }}.png?size=64" alt="{{ guild.name }}" class="guild-icon"> {% else %}
+                        <div class="no-icon">{{ guild.name[0] }}</div>
+                        {% endif %}
+                        <h4>{{ guild.name }}</h4>
+                    </div>
+                    {% if guild.can_manage %}
+                    <p class="manageable-tag"><i class="fas fa-crown"></i> Você pode gerenciar este bot aqui!</p>
+                    <div class="guild-settings">
+                        <form action="/guild/{{ guild.id }}" method="POST" class="prefix-form">
+                            <label for="prefix-{{ guild.id }}">Prefixo Atual: <span>{{ guild.custom_prefix }}</span></label>
+                            <input type="text" id="prefix-{{ guild.id }}" name="prefix" placeholder="Novo Prefixo" value="{{ guild.custom_prefix or '' }}" maxlength="10" required>
+                            <button type="submit" class="btn primary small">Atualizar Prefixo</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <p>Você não possui permissões para gerenciar este servidor.</p>
+                    {% endif %}
+                    <a href="/invite?guild_id={{ guild.id }}" class="btn secondary small invite-btn"><i class="fas fa-plus"></i> Convidar Bot</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <div class="wave-separator"></div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Snoopy Bot. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

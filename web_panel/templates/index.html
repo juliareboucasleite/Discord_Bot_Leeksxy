@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snoopy Bot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='Photos/Foto_Perfil.png') }}" type="image/x-icon">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="navbar-brand">
+                <img src="{{ url_for('static', filename='Photos/Foto_Perfil.png') }}" alt="Snoopy Bot Logo" class="logo-img">
+                <span class="logo-text">Snoopy Bot</span>
+                <span class="bot-tags">Bot</span>
+            </a>
+            <div class="navbar-right-items">
+                <a href="/comandos" class="commands-menu-toggle">Comandos</a> {% if user %}
+                <div class="user-profile">
+                    <img src="{{ user.avatar_url }}" alt="User Avatar" class="avatar-tiny">
+                    <span>{{ user.username }}#{{ user.discriminator }}</span>
+                </div>
+                <a href="/logout" class="btn secondary">Logout</a> {% else %}
+                <a href="/login" class="btn primary"><i class="fab fa-discord"></i> Login com Discord</a> {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container content">
+            <div class="hero-text">
+                <h2>Seu Servidor, Suas Regras.</h2>
+                <p>Personalize o Snoopy Bot para o seu servidor Discord com facilidade.</p>
+                <div class="hero-buttons">
+                    <a href="/invite" class="btn primary"><i class="fab fa-discord"></i> Convidar Bot</a>
+                    <a href="/dashboard" class="btn secondary">Dashboard</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="{{ url_for('static', filename='Photos/Foto_Perfil.png') }}" alt="Snoopy Bot Avatar" class="bot-avatar">
+            </div>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h3>Recursos Poderosos:</h3>
+            <p class="lead-text">Explore o que o Snoopy Bot pode fazer pelo seu servidor.</p>
+            <div class="icon-grid">
+                <div class="icon-item">
+                    <i class="fas fa-cogs"></i>
+                    <p>Moderação</p>
+                </div>
+                <div class="icon-item">
+                    <i class="fas fa-music"></i>
+                    <p>Música</p>
+                </div>
+                <div class="icon-item">
+                    <i class="fas fa-gamepad"></i>
+                    <p>Minigames</p>
+                </div>
+                <div class="icon-item">
+                    <i class="fas fa-chart-line"></i>
+                    <p>Estatísticas</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section features-grid">
+        <div class="container">
+            <h3>Por Que Escolher o Snoopy Bot?</h3>
+            <p class="lead-text">Construído para ser fácil de usar, poderoso e divertido.</p>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-icon"><i class="fas fa-robot"></i></div>
+                    <h4>Personalização Completa</h4>
+                    <p>Altere prefixos, configure comandos e personalize o bot para se adequar ao seu servidor.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h4>Segurança e Estabilidade</h4>
+                    <p>Contamos com uma moderação eficiente e atualizações constantes para manter seu servidor seguro e o bot sempre online.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i class="fas fa-users"></i></div>
+                    <h4>Comunidade Ativa</h4>
+                    <p>Junte-se à nossa comunidade para obter suporte, compartilhar ideias e interagir com outros usuários.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h3>Tem alguma dúvida?</h3>
+            <p class="lead-text">Entre em contato conosco através do nosso servidor de suporte ou por e-mail.</p>
+            <div class="hero-buttons">
+                <a href="#" id="openSupportModal" class="btn primary"><i class="fas fa-life-ring"></i> Servidor de Suporte</a>
+                <a href="#" id="openEmailModal" class="btn secondary"><i class="fas fa-envelope"></i> Enviar E-mail</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="wave-separator"></div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Snoopy Bot. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Support Server Modal -->
+    <div id="supportModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Precisa de Ajuda?</h2>
+            <p>Nossa equipe está pronta para te ajudar com qualquer dúvida ou problema. Clique no botão abaixo para entrar na comunidade do Snoopy Bot.</p>
+            <a href="https://discord.gg/pJAuxtr2QQ" class="btn primary" target="_blank"><i class="fab fa-discord"></i> Entrar no Servidor de Suporte</a>
+        </div>
+    </div>
+
+    <!-- Email Contact Modal -->
+    <div id="emailModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Entre em Contato Conosco</h2>
+            <p>Preencha o formulário abaixo para nos enviar uma mensagem. Responderemos o mais breve possível!</p>
+            <form id="contactForm" action="/send_email" method="POST" class="contact-form">
+                <input type="hidden" name="to_email" value="leeksxy@gmail.com">
+                <label for="name">Seu Nome:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="email">Seu E-mail:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="subject">Assunto:</label>
+                <input type="text" id="subject" name="subject" required>
+
+                <label for="message">Mensagem:</label>
+                <textarea id="message" name="message" rows="5" required></textarea>
+
+                <button type="submit" class="btn primary"><i class="fas fa-paper-plane"></i> Enviar E-mail</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        const supportModal = document.getElementById('supportModal');
+        const emailModal = document.getElementById('emailModal');
+        const openSupportModalBtn = document.getElementById('openSupportModal');
+        const openEmailModalBtn = document.getElementById('openEmailModal');
+        const closeButtons = document.querySelectorAll('.modal-close');
+
+        openSupportModalBtn.addEventListener('click', () => {
+            supportModal.style.display = 'flex';
+        });
+
+        openEmailModalBtn.addEventListener('click', () => {
+            emailModal.style.display = 'flex';
+        });
+
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                supportModal.style.display = 'none';
+                emailModal.style.display = 'none';
+            });
+        });
+
+        // Close modals if clicked outside
+        window.addEventListener('click', (event) => {
+            if (event.target == supportModal) {
+                supportModal.style.display = 'none';
+            } else if (event.target == emailModal) {
+                emailModal.style.display = 'none';
+            }
+        });
+
+        // AJAX form submission for email contact form
+        const contactForm = document.getElementById('contactForm');
+
+        if (contactForm) {
+            contactForm.addEventListener('submit', async(event) => {
+                event.preventDefault(); // Prevent default form submission
+
+                const formData = new FormData(contactForm);
+                const data = {};
+                formData.forEach((value, key) => (data[key] = value));
+
+                try {
+                    const response = await fetch(contactForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json' // Specify content type for Flask route
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert(result.message); // Show success message
+                        contactForm.reset(); // Clear the form
+                        emailModal.style.display = 'none'; // Close the modal
+                    } else {
+                        alert('Erro ao enviar e-mail: ' + result.message); // Show error message
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição:', error);
+                    alert('Ocorreu um erro de rede. Tente novamente.');
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

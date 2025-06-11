@@ -1,0 +1,2 @@
+now_playing = {}
+looping = {} 
