@@ -166,7 +166,7 @@ def portfolio():
         repos.sort(key=lambda x: x['updated_at'], reverse=True)
 
     except requests.exceptions.RequestException as e:
-        print(f"Erro ao buscar dados do GitHub: {e}")
+        app.logger.error(f"Erro ao buscar dados do GitHub: {e}")
         # Em um ambiente de produção, você pode querer adicionar um logger ou um fallback
         github_user_data = None
         repos = [] # Ensure repos is empty on error
