@@ -189,6 +189,10 @@ def logout():
     session.pop('access_token', None)
     return redirect(url_for('index'))
 
+@app.route('/healthz', methods=['GET'])
+def health_check():
+    return "OK", 200
+
 # Removendo o bloco if __name__ == '__main__', pois o Flask será iniciado pelo main.py
 # if __name__ == '__main__':
 #     app.run(debug=False) 
