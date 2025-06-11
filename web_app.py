@@ -141,6 +141,38 @@ def dashboard():
 
     return render_template('dashboard.html', user=user_info, guilds=guilds_data)
 
+@app.route('/portfolio')
+def portfolio():
+    user_info = session.get('discord_user')
+    github_username = "juliareboucasleite" # Seu nome de usuário do GitHub
+    repos = []
+    
+    try:
+        # Fetch user profile data (optional, but good for display)
+        user_response = requests.get(f"https://api.github.com/users/{github_username}")
+        user_response.raise_for_status()
+        github_user_data = user_response.json()
+
+        # Fetch repositories
+        repos_response = requests.get(f"https://api.github.com/users/{github_username}/repos?sort=updated&per_page=100")
+        repos_response.raise_for_status()
+        
+        # Filter out forks and private repositories if desired, and sort by updated date
+        repos = [
+            repo for repo in repos_response.json() 
+            if not repo['fork'] and not repo['private']
+        ]
+        # Sort by last updated date (descending)
+        repos.sort(key=lambda x: x['updated_at'], reverse=True)
+
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao buscar dados do GitHub: {e}")
+        # Em um ambiente de produção, você pode querer adicionar um logger ou um fallback
+        github_user_data = None
+        repos = [] # Ensure repos is empty on error
+
+    return render_template('portfolio.html', user=user_info, github_user=github_user_data, repos=repos)
+
 @app.route('/login')
 def login():
     return redirect(DISCORD_AUTH_URL)

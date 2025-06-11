@@ -20,7 +20,8 @@
                 <span class="bot-tags">Bot</span>
             </a>
             <div class="navbar-right-items">
-                <a href="/comandos" class="commands-menu-toggle">Comandos</a> {% if user %}
+                <a href="/comandos" class="commands-menu-toggle">Comandos</a>
+                <a href="/portfolio" class="commands-menu-toggle">Portfólio</a> {% if user %}
                 <div class="user-profile">
                     <img src="{{ user.avatar_url }}" alt="User Avatar" class="avatar-tiny">
                     <span>{{ user.username }}#{{ user.discriminator }}</span>
@@ -67,6 +68,7 @@
     <footer class="footer">
         <div class="container">
             <p>&copy; 2025 Leeksxy Bot. Todos os direitos reservados.</p>
+            <p>Feito com ❤️ por Leeksxy</p>
         </div>
     </footer>
 </body>
