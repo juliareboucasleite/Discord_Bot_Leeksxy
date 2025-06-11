@@ -1,5 +1,3 @@
-# Create a LICENSE.txt file with a proprietary custom license
-custom_license_text = """\
 Copyright (C) 2025 Julia Rebouças Leite
 
 Todos os direitos reservados.
@@ -13,13 +11,5 @@ O uso não autorizado deste software, mesmo que parcial, pode resultar em
 sanções legais conforme a legislação vigente.
 
 Para solicitações de uso, entre em contato com:
-📧 juliareboucasleite@gmail.com
+📧 juliareboucasleite@gmail.com  
 🔗 https://github.com/juliareboucasleite
-"""
-
-# Save it as LICENSE.txt
-license_path = "/mnt/data/LICENSE.txt"
-with open(license_path, "w", encoding="utf-8") as f:
-    f.write(custom_license_text)
-
-license_path
