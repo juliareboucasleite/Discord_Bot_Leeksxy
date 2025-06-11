@@ -82,11 +82,11 @@ class Queue(commands.Cog):
         embed.add_field(
             name="🎮 Controles",
             value=(
-                "`!play` - Adicionar música\n"
-                "`!skip` - Pular música atual\n"
-                "`!remove <número>` - Remover música\n"
-                "`!clearqueue` - Limpar fila\n"
-                "`!shuffle` - Embaralhar fila"
+                "'play` - Adicionar música\n"
+                "'skip` - Pular música atual\n"
+                "'remove <número>` - Remover música\n"
+                "'clearqueue` - Limpar fila\n"
+                "'shuffle` - Embaralhar fila"
             ),
             inline=False
         )
