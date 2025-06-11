@@ -1,5 +1,5 @@
 discord.py==2.3.2
-aiohttp==3.7.4
+aiohttp
 yt-dlp
 ffmpeg-python
 PyNaCl
