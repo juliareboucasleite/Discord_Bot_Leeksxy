@@ -91,7 +91,7 @@ class Ajuda(commands.Cog):
             inline=False
         )
 
-        embed.set_footer(text="Snoopy • Ajuda organizada por categorias")
+        embed.set_footer(text="Leeksxy • Ajuda organizada por categorias")
 
         await ctx.send(embed=embed)
 

@@ -18,7 +18,7 @@ class Ping(commands.Cog):
             color=0xE8E8E8 # Cor cinza claro para consistência
         )
         embed.set_thumbnail(url=self.bot.user.avatar.url if self.bot.user.avatar else None)
-        embed.set_footer(text="Snoopy - Latência")
+        embed.set_footer(text="Leeksxy - Latência")
         embed.timestamp = discord.utils.utcnow()
 
         initial_msg = await ctx.send(embed=embed)
