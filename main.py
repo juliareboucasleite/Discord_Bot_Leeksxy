@@ -292,21 +292,28 @@ async def on_raw_reaction_remove(payload):
                     logger.error(f"Erro ao remover cargo via reação de {member.display_name}: {e}")
 
 async def setup_comandos():
-    for folder in os.listdir('comandos'):
-        if os.path.isdir(os.path.join('comandos', folder)) and not folder.startswith('__'):
-            try:
-                await bot.load_extension(f'comandos.{folder}')
-                print(f"✅ Módulo {folder} carregado com sucesso!")
-            except Exception as e:
-                print(f"❌ Erro ao carregar módulo {folder}: {e}")
+    for folder in os.listdir("comandos"):
+        if os.path.isdir(os.path.join("comandos", folder)):
+            for file in os.listdir(os.path.join("comandos", folder)):
+                if file.endswith(".py") and not file.startswith("__"):
+                    try:
+                        await bot.load_extension(f"comandos.{folder}.{file[:-3]}")
+                        print(f"✅ Comando {file[:-3]} carregado!")
+                    except Exception as e:
+                        print(f"❌ Falha ao carregar o comando {file[:-3]}: {e}")
 
 async def main():
     await setup_db()
     await setup_comandos()
     await bot.start(TOKEN)
 
-if __name__ == "__main__":
-    asyncio.run(main())
+if __name__ == '__main__':
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Bot desligado manualmente.")
+    except Exception as e:
+        print(f"Ocorreu um erro ao iniciar o bot: {e}")
 
 # Note: Replace the token with your actual bot token.
 # Ensure you keep your token secure and do not share it publicly.
