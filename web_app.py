@@ -143,35 +143,36 @@ def dashboard():
 
 @app.route('/portfolio')
 def portfolio():
-    user_info = session.get('discord_user')
-    github_username = "juliareboucasleite" # Seu nome de usuário do GitHub
-    repos = []
-    
     try:
-        # Fetch user profile data (optional, but good for display)
-        user_response = requests.get(f"https://api.github.com/users/{github_username}")
-        user_response.raise_for_status()
-        github_user_data = user_response.json()
-
-        # Fetch repositories
-        repos_response = requests.get(f"https://api.github.com/users/{github_username}/repos?sort=updated&per_page=100")
-        repos_response.raise_for_status()
+        # Configurar headers com autenticação
+        headers = {}
+        github_token = os.getenv('GITHUB_TOKEN')
+        if github_token:
+            headers['Authorization'] = f'token {github_token}'
         
-        # Filter out forks and private repositories if desired, and sort by updated date
-        repos = [
-            repo for repo in repos_response.json() 
-            if not repo['fork'] and not repo['private']
-        ]
-        # Sort by last updated date (descending)
-        repos.sort(key=lambda x: x['updated_at'], reverse=True)
-
+        # Buscar dados do usuário
+        user_response = requests.get(
+            f'https://api.github.com/users/juliareboucasleite',
+            headers=headers
+        )
+        user_response.raise_for_status()
+        user_data = user_response.json()
+        
+        # Buscar repositórios
+        repos_response = requests.get(
+            f'https://api.github.com/users/juliareboucasleite/repos',
+            headers=headers
+        )
+        repos_response.raise_for_status()
+        repos_data = repos_response.json()
+        
+        # Ordenar repositórios por data de atualização
+        repos_data.sort(key=lambda x: x['updated_at'], reverse=True)
+        
+        return render_template('portfolio.html', user=user_data, repos=repos_data)
     except requests.exceptions.RequestException as e:
-        app.logger.error(f"Erro ao buscar dados do GitHub: {e}")
-        # Em um ambiente de produção, você pode querer adicionar um logger ou um fallback
-        github_user_data = None
-        repos = [] # Ensure repos is empty on error
-
-    return render_template('portfolio.html', user=user_info, github_user=github_user_data, repos=repos)
+        app.logger.error(f'Erro ao buscar dados do GitHub: {e}')
+        return render_template('portfolio.html', error=str(e))
 
 @app.route('/login')
 def login():
