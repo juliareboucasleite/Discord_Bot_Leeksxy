@@ -26,8 +26,8 @@ class Perfil(commands.Cog):
         
         xp_atual, nivel_atual = (xp_data[0], xp_data[1]) if xp_data else (0, 1) # Default se não houver dados
 
-        # Buscar saldo de moedas
-        c.execute("SELECT saldo FROM moedas WHERE user_id = ?", (target_user.id,))
+        # Buscar saldo de moedas da tabela correta
+        c.execute("SELECT balance FROM user_economy WHERE user_id = ? AND guild_id = ?", (target_user.id, ctx.guild.id))
         moedas_data = c.fetchone()
         saldo_moedas = moedas_data[0] if moedas_data else 0
 
