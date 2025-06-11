@@ -5,3 +5,4 @@ __pycache__/
 dados.db
 *.exe
 .env 
+*.log
