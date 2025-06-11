@@ -1,38 +1,55 @@
 import discord
 import sqlite3
 from discord.ext import commands
+from contextlib import contextmanager
 
-conn = sqlite3.connect("dados.db")
-c = conn.cursor()
-c.execute("CREATE TABLE IF NOT EXISTS moedas (user_id INTEGER PRIMARY KEY, saldo INTEGER DEFAULT 0)")
-conn.commit()
+DATABASE = "dados.db"
+
+@contextmanager
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+def setup_database():
+    with get_db_connection() as conn:
+        c = conn.cursor()
+        c.execute("CREATE TABLE IF NOT EXISTS user_economy (user_id INTEGER, guild_id INTEGER, balance INTEGER DEFAULT 0, last_work TEXT, PRIMARY KEY (user_id, guild_id))")
+        conn.commit()
 
 class Moedas(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        setup_database()
 
-    async def get_saldo(self, user_id):
-        c.execute("SELECT saldo FROM moedas WHERE user_id = ?", (user_id,))
-        result = c.fetchone()
-        return result[0] if result else 0
+    async def get_saldo(self, user_id, guild_id):
+        with get_db_connection() as conn:
+            c = conn.cursor()
+            c.execute("SELECT balance FROM user_economy WHERE user_id = ? AND guild_id = ?", (user_id, guild_id))
+            result = c.fetchone()
+            return result[0] if result else 0
 
-    async def update_saldo(self, user_id, amount):
-        current_saldo = await self.get_saldo(user_id)
-        new_saldo = current_saldo + amount
-        if new_saldo < 0: # Para evitar saldo negativo se não for permitido
-            new_saldo = 0 # Ou raise an error, dependendo da regra
+    async def update_saldo(self, user_id, guild_id, amount):
+        with get_db_connection() as conn:
+            c = conn.cursor()
+            current_saldo = await self.get_saldo(user_id, guild_id)
+            new_saldo = current_saldo + amount
+            if new_saldo < 0:  # Para evitar saldo negativo
+                new_saldo = 0
 
-        if current_saldo == 0 and amount > 0: # Se o usuário não existe e estamos adicionando moedas
-            c.execute("INSERT INTO moedas (user_id, saldo) VALUES (?, ?)", (user_id, amount))
-        else:
-            c.execute("UPDATE moedas SET saldo = ? WHERE user_id = ?", (new_saldo, user_id))
-        conn.commit()
+            if current_saldo == 0 and amount > 0:  # Se o usuário não existe e estamos adicionando moedas
+                c.execute("INSERT INTO user_economy (user_id, guild_id, balance) VALUES (?, ?, ?)", (user_id, guild_id, amount))
+            else:
+                c.execute("UPDATE user_economy SET balance = ? WHERE user_id = ? AND guild_id = ?", (new_saldo, user_id, guild_id))
+            conn.commit()
 
     @commands.command(name="saldo", aliases=["moedas", "money", "balance"])
     async def show_saldo(self, ctx, membro: discord.Member = None):
         await ctx.message.delete()
         target_user = membro or ctx.author
-        saldo = await self.get_saldo(target_user.id)
+        saldo = await self.get_saldo(target_user.id, ctx.guild.id)
 
         embed = discord.Embed(
             title="💰 Saldo de Moedas",
@@ -81,7 +98,7 @@ class Moedas(commands.Cog):
             )
             return await ctx.send(embed=embed, ephemeral=True)
 
-        sender_saldo = await self.get_saldo(ctx.author.id)
+        sender_saldo = await self.get_saldo(ctx.author.id, ctx.guild.id)
         if sender_saldo < valor:
             embed = discord.Embed(
                 title="💸 Saldo Insuficiente",
@@ -90,8 +107,8 @@ class Moedas(commands.Cog):
             )
             return await ctx.send(embed=embed, ephemeral=True)
 
-        await self.update_saldo(ctx.author.id, -valor)
-        await self.update_saldo(membro.id, valor)
+        await self.update_saldo(ctx.author.id, ctx.guild.id, -valor)
+        await self.update_saldo(membro.id, ctx.guild.id, valor)
 
         embed = discord.Embed(
             title="💸 Moedas Enviadas!",
@@ -101,7 +118,7 @@ class Moedas(commands.Cog):
         embed.add_field(name="Remetente", value=ctx.author.mention, inline=True)
         embed.add_field(name="Destinatário", value=membro.mention, inline=True)
         embed.add_field(name="Quantia", value=f"**{valor} moedas**", inline=False)
-        embed.set_footer(text=f"Novo saldo de {ctx.author.display_name}: {await self.get_saldo(ctx.author.id)}")
+        embed.set_footer(text=f"Novo saldo de {ctx.author.display_name}: {await self.get_saldo(ctx.author.id, ctx.guild.id)}")
         embed.timestamp = discord.utils.utcnow()
 
         await ctx.send(embed=embed)
@@ -127,7 +144,7 @@ class Moedas(commands.Cog):
             )
             return await ctx.send(embed=embed, ephemeral=True)
         
-        await self.update_saldo(membro.id, valor)
+        await self.update_saldo(membro.id, ctx.guild.id, valor)
 
         embed = discord.Embed(
             title="💰 Moedas Adicionadas!",
@@ -136,7 +153,7 @@ class Moedas(commands.Cog):
         )
         embed.add_field(name="Usuário", value=membro.mention, inline=True)
         embed.add_field(name="Quantia", value=f"**{valor} moedas**", inline=True)
-        embed.set_footer(text=f"Novo saldo de {membro.display_name}: {await self.get_saldo(membro.id)}")
+        embed.set_footer(text=f"Novo saldo de {membro.display_name}: {await self.get_saldo(membro.id, ctx.guild.id)}")
         embed.timestamp = discord.utils.utcnow()
 
         await ctx.send(embed=embed)
@@ -162,8 +179,8 @@ class Moedas(commands.Cog):
             )
             return await ctx.send(embed=embed, ephemeral=True)
         
-        current_saldo = await self.get_saldo(membro.id)
-        if current_saldo < valor: # Evita remover mais do que o usuário tem
+        current_saldo = await self.get_saldo(membro.id, ctx.guild.id)
+        if current_saldo < valor:  # Evita remover mais do que o usuário tem
             embed = discord.Embed(
                 title="⚠️ Saldo Insuficiente",
                 description=f"**{membro.display_name}** não tem **{valor} moedas** para remover. Saldo atual: **{current_saldo}**.",
@@ -171,7 +188,7 @@ class Moedas(commands.Cog):
             )
             return await ctx.send(embed=embed, ephemeral=True)
 
-        await self.update_saldo(membro.id, -valor)
+        await self.update_saldo(membro.id, ctx.guild.id, -valor)
 
         embed = discord.Embed(
             title="💸 Moedas Removidas!",
@@ -180,7 +197,7 @@ class Moedas(commands.Cog):
         )
         embed.add_field(name="Usuário", value=membro.mention, inline=True)
         embed.add_field(name="Quantia", value=f"**{valor} moedas**", inline=True)
-        embed.set_footer(text=f"Novo saldo de {membro.display_name}: {await self.get_saldo(membro.id)}")
+        embed.set_footer(text=f"Novo saldo de {membro.display_name}: {await self.get_saldo(membro.id, ctx.guild.id)}")
         embed.timestamp = discord.utils.utcnow()
 
         await ctx.send(embed=embed)
@@ -201,7 +218,6 @@ class Moedas(commands.Cog):
                 color=0xE8E8E8
             )
             await ctx.send(embed=embed, ephemeral=True)
-        # Adicione outros tratamentos de erro se necessário
 
 async def setup(bot):
     await bot.add_cog(Moedas(bot))
