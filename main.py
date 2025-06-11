@@ -4,9 +4,6 @@ import os
 import logging
 import asyncio
 import sqlite3
-from web_app import app # Importa a aplicação Flask
-from waitress import serve # Importa o servidor WSGI
-from fuzzywuzzy import process
 import sys
 from dotenv import load_dotenv
 
@@ -325,23 +322,19 @@ async def setup_comandos():
                 except Exception as e:
                     print(f"❌ Erro ao carregar {path}: {e}")
 
-async def start_web_server():
-    print("🌐 Iniciando servidor web (Flask) em http://127.0.0.1:5000")
-    serve(app, host='127.0.0.1', port=5000)
-
 async def main():
     await setup_db()
     await setup_comandos()
-    
-    # Inicia o servidor web em uma tarefa separada, sem bloquear o bot
-    asyncio.create_task(start_web_server())
-    
-    print("✅ Comandos carregados e servidor web iniciado, iniciando o bot...")
-    await bot.start(TOKEN)
+    try:
+        await bot.start(TOKEN)
+    except KeyboardInterrupt:
+        print("Bot desligado manualmente.")
+    except Exception as e:
+        print(f"Erro ao iniciar o bot: {e}")
 
 if __name__ == "__main__":
-    bot.run_webserver.start()
-    bot.run()
+    print("🚀 Iniciando o bot...")
+    asyncio.run(main())
 
 # Note: Replace the token with your actual bot token.
 # Ensure you keep your token secure and do not share it publicly.

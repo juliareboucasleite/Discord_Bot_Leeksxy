@@ -2,19 +2,23 @@ from flask import Flask, render_template, request, jsonify, url_for, session, re
 import os
 import re # Import the regular expression module
 import requests # Import the requests library
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__, 
             template_folder='web_panel/templates',
             static_folder='web_panel/static')
 
 # --- Discord OAuth2 Configuration ---
-# IMPORTANT: Replace these with your actual Discord Bot Client ID and Client Secret
-# and ensure your Redirect URI is configured in the Discord Developer Portal.
-app.secret_key = 'a_very_long_and_random_string_for_security' # Replace with a strong, random key
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'a_very_long_and_random_string_for_security')
 
-DISCORD_CLIENT_ID = "1370143300228747284" # Your actual Client ID from Discord Developer Portal
-DISCORD_CLIENT_SECRET = "8NRUYTkZlpKUlW1C8qZyPEPdoZ2yRtj3" # Your actual Client Secret from Discord Developer Portal
-DISCORD_REDIRECT_URI = 'http://127.0.0.1:5000/callback' # Must match your Discord Developer Portal setting exactly
+DISCORD_CLIENT_ID = os.getenv('DISCORD_CLIENT_ID')
+DISCORD_CLIENT_SECRET = os.getenv('DISCORD_CLIENT_SECRET')
+DISCORD_REDIRECT_URI = os.getenv('DISCORD_REDIRECT_URI')
+
+if not all([DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI]):
+    raise ValueError("Variáveis de ambiente DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET ou DISCORD_REDIRECT_URI não configuradas.")
 
 # Discord API Endpoints
 DISCORD_AUTH_URL = f"https://discord.com/oauth2/authorize?client_id={DISCORD_CLIENT_ID}&redirect_uri={DISCORD_REDIRECT_URI}&response_type=code&scope=identify%20guilds"
