@@ -16,9 +16,10 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'a_very_long_and_random_string_fo
 DISCORD_CLIENT_ID = os.getenv('DISCORD_CLIENT_ID')
 DISCORD_CLIENT_SECRET = os.getenv('DISCORD_CLIENT_SECRET')
 DISCORD_REDIRECT_URI = os.getenv('DISCORD_REDIRECT_URI')
+DISCORD_BOT_INVITE_URL = os.getenv('DISCORD_BOT_INVITE_URL')
 
-if not all([DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI]):
-    raise ValueError("Variáveis de ambiente DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET ou DISCORD_REDIRECT_URI não configuradas.")
+if not all([DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI, DISCORD_BOT_INVITE_URL]):
+    raise ValueError("Variáveis de ambiente DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI ou DISCORD_BOT_INVITE_URL não configuradas.")
 
 # Discord API Endpoints
 DISCORD_AUTH_URL = f"https://discord.com/oauth2/authorize?client_id={DISCORD_CLIENT_ID}&redirect_uri={DISCORD_REDIRECT_URI}&response_type=code&scope=identify%20guilds"
@@ -107,7 +108,7 @@ def send_email():
 @app.route('/invite')
 def invite():
     # Redireciona para o URL de autorização do bot no Discord
-    return redirect(DISCORD_AUTH_URL)
+    return redirect(DISCORD_BOT_INVITE_URL)
 
 @app.route('/dashboard')
 def dashboard():
