@@ -32,7 +32,7 @@ class Musica(commands.Cog):
         self.bot = bot
         self.FFMPEG_EXECUTABLE = get_ffmpeg_path()
         self.FFMPEG_OPTIONS = {
-            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -loglevel debug',
             'options': '-vn -b:a 320k'  # Increased bitrate for better quality
         }
         self.YTDL_OPTIONS = {
