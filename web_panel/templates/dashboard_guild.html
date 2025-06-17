@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuração do Servidor</title>
+</head>
+<body>
+    <h1>Configuração do Servidor: {{ guild_id }}</h1>
+    <p>Prefixo atual: <strong>{{ prefix }}</strong></p>
+    <form method="POST">
+        <label for="prefix">Novo prefixo:</label>
+        <input type="text" id="prefix" name="prefix" maxlength="3" required value="{{ prefix }}">
+        <button type="submit">Salvar</button>
+    </form>
+    <br>
+    <a href="/dashboard">Voltar para lista de servidores</a>
+</body>
+</html> 

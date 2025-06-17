@@ -3,6 +3,7 @@ import os
 import re # Import the regular expression module
 import requests # Import the requests library
 from dotenv import load_dotenv
+import sqlite3
 
 load_dotenv()
 
@@ -119,25 +120,17 @@ def dashboard():
         headers = {'Authorization': f'Bearer {session["access_token"]}'}
         try:
             guilds_response = requests.get(DISCORD_GUILDS_URL, headers=headers)
-            guilds_response.raise_for_status() # Raise an exception for HTTP errors
-            guilds_data = []
+            guilds_response.raise_for_status()
             for guild in guilds_response.json():
-                # Filter for guilds where the bot is in
-                # For a real bot, you'd check if the bot is in the guild
-                # and if the user has permissions to manage the bot
-                guild_can_manage = True if guild['owner'] else False # Simplified: assume owner can manage
-                if guild_can_manage: # Only add guilds the user can manage
+                # Só mostra guilds que o usuário é dono ou tem permissão de gerenciar
+                if guild.get('owner', False):
                     guilds_data.append({
                         "id": guild['id'],
                         "name": guild['name'],
                         "icon": guild['icon'],
-                        "can_manage": guild_can_manage, 
-                        "custom_prefix": "'" # Placeholder, ideally fetched from bot's actual data
                     })
         except requests.exceptions.RequestException as e:
             print(f"Error fetching guilds: {e}")
-            # Handle error, maybe redirect to login or show a message
-            pass # Continue with empty guilds_data
 
     return render_template('dashboard.html', user=user_info, guilds=guilds_data)
 
@@ -233,6 +226,31 @@ def logout():
 @app.route('/healthz', methods=['GET'])
 def health_check():
     return "OK", 200
+
+@app.route('/dashboard/<guild_id>', methods=['GET', 'POST'])
+def dashboard_guild(guild_id):
+    user_info = session.get('discord_user')
+    if not user_info:
+        return redirect(url_for('login'))
+
+    # Buscar configurações do servidor no banco de dados
+    conn = sqlite3.connect('dados.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT custom_prefix FROM guild_settings WHERE guild_id = ?', (guild_id,))
+    result = cursor.fetchone()
+    prefix = result[0] if result else "'"
+
+    if request.method == 'POST':
+        new_prefix = request.form.get('prefix')
+        if new_prefix:
+            if result:
+                cursor.execute('UPDATE guild_settings SET custom_prefix = ? WHERE guild_id = ?', (new_prefix, guild_id))
+            else:
+                cursor.execute('INSERT INTO guild_settings (guild_id, custom_prefix) VALUES (?, ?)', (guild_id, new_prefix))
+            conn.commit()
+            prefix = new_prefix
+    conn.close()
+    return render_template('dashboard_guild.html', user=user_info, guild_id=guild_id, prefix=prefix)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
