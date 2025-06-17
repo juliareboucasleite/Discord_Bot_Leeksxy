@@ -306,19 +306,22 @@ async def main():
     await setup_db()
     await setup_comandos()
     
-    # Iniciar o bot e o servidor web em paralelo
-    from web_app import app
-    import threading
-    
-    def run_web():
-        port = int(os.environ.get('PORT', 5000))
-        app.run(host='0.0.0.0', port=port)
-    
-    web_thread = threading.Thread(target=run_web)
-    web_thread.daemon = True
-    web_thread.start()
-    
+    # Iniciar o bot
     await bot.start(TOKEN)
+
+# Configuração para o Gunicorn
+from web_app import app as flask_app
+from aiohttp import web
+
+async def handle_health(request):
+    return web.Response(text="OK")
+
+async def init_app():
+    app = web.Application()
+    app.router.add_get('/healthz', handle_health)
+    return app
+
+app = init_app()
 
 if __name__ == "__main__":
     asyncio.run(main())
