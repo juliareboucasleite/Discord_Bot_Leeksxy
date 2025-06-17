@@ -305,15 +305,23 @@ async def setup_comandos():
 async def main():
     await setup_db()
     await setup_comandos()
+    
+    # Iniciar o bot e o servidor web em paralelo
+    from web_app import app
+    import threading
+    
+    def run_web():
+        port = int(os.environ.get('PORT', 5000))
+        app.run(host='0.0.0.0', port=port)
+    
+    web_thread = threading.Thread(target=run_web)
+    web_thread.daemon = True
+    web_thread.start()
+    
     await bot.start(TOKEN)
 
-if __name__ == '__main__':
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("Bot desligado manualmente.")
-    except Exception as e:
-        print(f"Ocorreu um erro ao iniciar o bot: {e}")
+if __name__ == "__main__":
+    asyncio.run(main())
 
 # Note: Replace the token with your actual bot token.
 # Ensure you keep your token secure and do not share it publicly.
