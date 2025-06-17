@@ -1,8 +1,46 @@
-.venv/
-.venv*/
+# Python
 __pycache__/
-*.pyc
-dados.db
-*.exe
-.env 
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv/
+.venv310/
+.venv_new/
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Logs
 *.log
+bot.log
+
+# Database
+*.db
+dados.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cookies
+cookies.txt
