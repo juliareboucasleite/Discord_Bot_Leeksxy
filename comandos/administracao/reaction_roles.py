@@ -33,7 +33,7 @@ class ReactionRoles(commands.Cog):
                 embed = discord.Embed(
                     title="❌ Erro de Emoji",
                     description="Formato de emoji personalizado inválido. Use um emoji padrão ou um emoji personalizado no formato `:<nome_emoji>:` ou `<:nome_emoji:ID>`.",
-                    color=0xFF0000
+                    color=0xDCDCDC
                 )
                 await ctx.send(embed=embed)
                 return
@@ -47,7 +47,7 @@ class ReactionRoles(commands.Cog):
                 embed = discord.Embed(
                     title="❌ Erro de Emoji",
                     description="Formato de emoji animado personalizado inválido. Use um emoji padrão ou um emoji personalizado no formato `<a:nome_emoji:ID>`.",
-                    color=0xFF0000
+                    color=0xDCDCDC
                 )
                 await ctx.send(embed=embed)
                 return
