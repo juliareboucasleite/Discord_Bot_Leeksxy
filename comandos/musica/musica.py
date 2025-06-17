@@ -32,8 +32,8 @@ class Musica(commands.Cog):
         self.bot = bot
         self.FFMPEG_EXECUTABLE = get_ffmpeg_path()
         self.FFMPEG_OPTIONS = {
-            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -loglevel debug',
-            'options': '-vn -b:a 320k'  # Increased bitrate for better quality
+            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -loglevel warning',
+            'options': '-vn -b:a 192k -af volume=1.0'
         }
         self.YTDL_OPTIONS = {
             'format': 'bestaudio/best',
@@ -47,21 +47,27 @@ class Musica(commands.Cog):
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-                'preferredquality': '320',
+                'preferredquality': '192',
             }],
         }
         self.keepalive_task = None
+        self.keepalive_interval = 10  # Reduzido para 10 segundos
 
     async def voice_keepalive(self, voice_client):
         """Keeps the voice connection alive by periodically sending silence packets"""
         print("Starting voice keepalive task")
         while True:
-            if voice_client.is_connected():
-                # Send a silence packet every 15 seconds
-                voice_client.send_audio_packet(b'\xF8\xFF\xFE', encode=False)
-                await asyncio.sleep(15)
-            else:
-                break
+            try:
+                if voice_client and voice_client.is_connected():
+                    # Send a silence packet
+                    voice_client.send_audio_packet(b'\xF8\xFF\xFE', encode=False)
+                    await asyncio.sleep(self.keepalive_interval)
+                else:
+                    print("Voice client disconnected, stopping keepalive")
+                    break
+            except Exception as e:
+                print(f"Error in keepalive: {e}")
+                await asyncio.sleep(1)  # Espera 1 segundo antes de tentar novamente
 
     @commands.command()
     async def play(self, ctx, *, search: str):
@@ -183,52 +189,68 @@ class Musica(commands.Cog):
         finally:
             conn.close()
 
-        try:
-            source = await discord.FFmpegOpusAudio.from_probe(
-                url,
-                executable=self.FFMPEG_EXECUTABLE,
-                **self.FFMPEG_OPTIONS
-            )
+        max_retries = 3
+        retry_count = 0
 
-            def after_play(error):
-                if error:
-                    print(f"ERROR: Playback error: {error}")
+        while retry_count < max_retries:
+            try:
+                source = await discord.FFmpegOpusAudio.from_probe(
+                    url,
+                    executable=self.FFMPEG_EXECUTABLE,
+                    **self.FFMPEG_OPTIONS
+                )
+
+                def after_play(error):
+                    if error:
+                        print(f"ERROR: Playback error: {error}")
+                        asyncio.run_coroutine_threadsafe(
+                            ctx.send(f"❌ Erro na reprodução: {str(error)}"), 
+                            self.bot.loop
+                        )
+                    
+                    if looping.get(ctx.guild.id) and now_playing.get(ctx.guild.id):
+                        current_song_info = {
+                            'url': now_playing[ctx.guild.id]['url'],
+                            'title': now_playing[ctx.guild.id]['title'],
+                            'author': now_playing[ctx.guild.id]['requester'],
+                            'duration': duration,
+                            'thumbnail': thumbnail
+                        }
+                        q.insert(0, current_song_info)
+                    
+                    asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop)
+
+                if ctx.voice_client.is_playing():
+                    ctx.voice_client.stop()
+
+                ctx.voice_client.play(source, after=after_play)
+
+                embed = discord.Embed(
+                    title="🎵 Tocando Agora",
+                    description=f"**[{title}]({url})**",
+                    color=0xE8E8E8
+                )
+                if duration:
+                    embed.add_field(name="⏱️ Duração", value=f"{duration//60}:{duration%60:02d}", inline=True)
+                embed.add_field(name="👤 Pedido por", value=f"{author.name}", inline=True)
+                if thumbnail:
+                    embed.set_thumbnail(url=thumbnail)
+                embed.set_footer(text=f"Músicas na fila: {len(q)}", icon_url=author.avatar.url if author.avatar else None)
+                await ctx.send(embed=embed)
+                await ctx.message.add_reaction("🎧")
+                break  # Se chegou aqui, a reprodução começou com sucesso
+
+            except Exception as e:
+                retry_count += 1
+                print(f"ERROR: Failed to play {title} (attempt {retry_count}/{max_retries}): {e}")
                 
-                if looping.get(ctx.guild.id) and now_playing.get(ctx.guild.id):
-                    current_song_info = {
-                        'url': now_playing[ctx.guild.id]['url'],
-                        'title': now_playing[ctx.guild.id]['title'],
-                        'author': now_playing[ctx.guild.id]['requester'],
-                        'duration': duration,
-                        'thumbnail': thumbnail
-                    }
-                    q.insert(0, current_song_info)
+                if retry_count < max_retries:
+                    await asyncio.sleep(1)  # Espera 1 segundo antes de tentar novamente
+                    continue
                 
-                asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop)
-
-            if ctx.voice_client.is_playing():
-                ctx.voice_client.stop()
-
-            ctx.voice_client.play(source, after=after_play)
-
-            embed = discord.Embed(
-                title="🎵 Tocando Agora",
-                description=f"**[{title}]({url})**",
-                color=0xE8E8E8
-            )
-            if duration:
-                embed.add_field(name="⏱️ Duração", value=f"{duration//60}:{duration%60:02d}", inline=True)
-            embed.add_field(name="👤 Pedido por", value=f"{author.name}", inline=True)
-            if thumbnail:
-                embed.set_thumbnail(url=thumbnail)
-            embed.set_footer(text=f"Músicas na fila: {len(q)}", icon_url=author.avatar.url if author.avatar else None)
-            await ctx.send(embed=embed)
-            await ctx.message.add_reaction("🎧")
-
-        except Exception as e:
-            print(f"ERROR: Failed to play {title}: {e}")
-            await ctx.send(f"❌ Não foi possível reproduzir **{title}**: {str(e)}")
-            await self.play_next(ctx)
+                await ctx.send(f"❌ Não foi possível reproduzir **{title}** após {max_retries} tentativas: {str(e)}")
+                await self.play_next(ctx)  # Tenta tocar a próxima música
+                break
 
     @commands.command()
     async def skip(self, ctx):
