@@ -234,6 +234,6 @@ def logout():
 def health_check():
     return "OK", 200
 
-# Removendo o bloco if __name__ == '__main__', pois o Flask será iniciado pelo main.py
-# if __name__ == '__main__':
-#     app.run(debug=False) 
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port) 
