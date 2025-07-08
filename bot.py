@@ -33,6 +33,25 @@ os.environ['PATH'] = os.path.dirname(os.path.abspath(__file__)) + os.pathsep + o
 
 intents = discord.Intents.all()
 
+def get_prefix(bot, message):
+    if not message.guild:
+        return "'"  # Prefixo padrão para DMs
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute('SELECT custom_prefix FROM guild_settings WHERE guild_id = ?', (message.guild.id,))
+        result = cursor.fetchone()
+        conn.close()
+        if result and result[0]:
+            return result[0]
+        else:
+            return "'"  # Prefixo padrão
+    except Exception as e:
+        print(f"Erro ao buscar prefixo: {e}")
+        return "'"
+
+bot = commands.Bot(command_prefix=get_prefix, intents=intents)
+
 DATABASE = 'dados.db'
 
 @contextmanager
@@ -123,23 +142,6 @@ async def setup_comandos():
         if filename.endswith('.py'):
             await bot.load_extension(f'comandos.{filename[:-3]}')
     print("✅ Comandos carregados com sucesso!")
-
-def get_prefix(bot, message):
-    if not message.guild:
-        return "'"  # Prefixo padrão para DMs
-    try:
-        conn = sqlite3.connect(DATABASE)
-        cursor = conn.cursor()
-        cursor.execute('SELECT custom_prefix FROM guild_settings WHERE guild_id = ?', (message.guild.id,))
-        result = cursor.fetchone()
-        conn.close()
-        if result and result[0]:
-            return result[0]
-        else:
-            return "'"  # Prefixo padrão
-    except Exception as e:
-        print(f"Erro ao buscar prefixo: {e}")
-        return "'"
 
 async def main():
     await setup_db()
