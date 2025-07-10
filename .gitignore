@@ -47,3 +47,6 @@ cookies.txt
 
 #Musica
 comandos/musica/ffmpeg/
+
+#Passwords
+.env
