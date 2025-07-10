@@ -8,7 +8,7 @@ class IA(commands.Cog):
         self.bot = bot
         self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    @commands.command(name="ia", aliases=["pergunta", "chatgpt", "AI", "ai"])
+    @commands.command(name="ia", aliases=["pergunta", "chatgpt", "AI", "ai"], help="Pergunte qualquer coisa para a IA!")
     async def pergunta(self, ctx, *, pergunta: str):
         await ctx.trigger_typing()
         try:

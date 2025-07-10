@@ -45,8 +45,8 @@ Thumbs.db
 # Cookies
 cookies.txt
 
-#Musica
+# Musica
 comandos/musica/ffmpeg/
 
-#Passwords
+# Passwords
 .env
