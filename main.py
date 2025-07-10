@@ -104,12 +104,15 @@ async def setup_db():
             )
         ''')
         conn.commit()
-    print("Banco de dados inicializado e tabelas verificadas.")
+    print("【✔】Banco de dados inicializado e tabelas verificadas.")
 
 @bot.event
 async def on_ready():
-    print(f"Bot {bot.user} está online e pronto!")
-    print(f"ID do Bot: {bot.user.id}")
+    print(f"【✔】Bot {bot.user} está online e pronto!")
+    if bot.user is not None:
+        print(f"ID do Bot: {bot.user.id}")
+    else:
+        print("ID do Bot: desconhecido (bot.user é None)")
     print(f"Conectado em {len(bot.guilds)} servidores")
     await bot.change_presence(
         activity=discord.Streaming(
@@ -121,7 +124,7 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        command_name = ctx.message.content.split(' ')[0][len(bot.command_prefix):]
+        command_name = ctx.message.content.split(' ')[0][len(ctx.prefix):]
         all_commands = [cmd.name for cmd in bot.commands]
         
         best_match = process.extractOne(command_name, all_commands)
@@ -176,7 +179,7 @@ async def on_member_join(member):
 
         if welcome_channel_id:
             channel = bot.get_channel(welcome_channel_id)
-            if channel:
+            if isinstance(channel, (discord.TextChannel, discord.DMChannel)):
                 embed = discord.Embed(
                     title="👋 Bem-Vindo(a)!",
                     description=f"Seja bem-vindo(a), {member.mention}, ao servidor **{member.guild.name}**!",
@@ -207,7 +210,7 @@ async def on_member_remove(member):
     if settings and settings[0]:
         leave_channel_id = settings[0]
         channel = bot.get_channel(leave_channel_id)
-        if channel:
+        if isinstance(channel, (discord.TextChannel, discord.DMChannel)):
             embed = discord.Embed(
                 title="👋 Adeus!",
                 description=f"{member.display_name} deixou o servidor. Sentiremos sua falta!",
@@ -298,16 +301,19 @@ async def setup_comandos():
                 if file.endswith(".py") and not file.startswith("__"):
                     try:
                         await bot.load_extension(f"comandos.{folder}.{file[:-3]}")
-                        print(f"✅ Comando {file[:-3]} carregado!")
+                        print(f"【✔】Comando {file[:-3]} carregado!")
                     except Exception as e:
-                        print(f"❌ Falha ao carregar o comando {file[:-3]}: {e}")
+                        print(f"【✘】Falha ao carregar o comando {file[:-3]}: {e}")
 
 async def main():
     await setup_db()
     await setup_comandos()
     
     # Iniciar o bot
-    await bot.start(TOKEN)
+    if TOKEN is not None:
+        await bot.start(TOKEN)
+    else:
+        print("Erro: Token do Discord não encontrado!")
 
 # Configuração para o Gunicorn
 from web_app import app as flask_app

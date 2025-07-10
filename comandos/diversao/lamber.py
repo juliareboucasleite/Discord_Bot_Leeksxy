@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import random
+from typing import Optional
 
 class LamberView(discord.ui.View):
     def __init__(self, autor, alvo):
@@ -44,9 +45,28 @@ class Lamber(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="lamber", aliases=["lick", "lambida"], help='Lambe um membro. Uso: \'lamber <@membro>')
-    async def lamber(self, ctx, membro: discord.Member = None):
+    @commands.command(name="lamber", aliases=["lick"])
+    async def lamber_command(self, ctx, membro: Optional[discord.Member] = None):
         await ctx.message.delete()
+
+        gifs = [
+            "https://c.tenor.com/3.gif",
+            "https://c.tenor.com/4.gif"
+            # Adicione mais GIFs locais se quiser
+        ]
+
+        # Tenta pegar GIF da API waifu.pics
+        try:
+            import aiohttp
+            async with aiohttp.ClientSession() as session:
+                async with session.get("https://api.waifu.pics/sfw/lick") as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        gif_url = data["url"]
+                    else:
+                        gif_url = random.choice(gifs)
+        except Exception:
+            gif_url = random.choice(gifs)
 
         if not membro:
             embed = discord.Embed(
@@ -56,43 +76,35 @@ class Lamber(commands.Cog):
             )
             return await ctx.send(embed=embed, ephemeral=True)
 
-        if membro.id == ctx.author.id:
-            embed = discord.Embed(
-                title="🤨 Lamber a Si Mesmo?",
-                description="Você está tentando lamber a si mesmo? Que inusitado!",
-                color=0xE8E8E8
-            )
-            return await ctx.send(embed=embed, ephemeral=True)
-
         if membro.id == self.bot.user.id:
             embed = discord.Embed(
-                title="😳 Ops!",
-                description="Não me lamba! Sou um bot, não tenho sabor!",
+                title="😳 Ei!",
+                description="Por que está tentando me lamber? Eu sou só um bot!",
                 color=0xE8E8E8
             )
-            return await ctx.send(embed=embed, ephemeral=True)
+            embed.set_image(url=gif_url)
+            return await ctx.send(embed=embed)
 
-        gifs = [
-            'https://media.tenor.com/ThT8ZvjghcYAAAAC/lick.gif',
-            'https://media.tenor.com/rUUNQe_1K3wAAAAC/anime-lick.gif',
-            'https://media.tenor.com/t0x1QpOmQ7gAAAAd/lick-anime.gif',
-            'https://media.tenor.com/eB32sY_tq6QAAAAC/lick-anime.gif',
-            'https://media.tenor.com/mJ-J6l_3gR4AAAAC/anime-lick.gif'
-        ]
+        if membro.id == ctx.author.id:
+            embed = discord.Embed(
+                title="🙃 Auto Lambida",
+                description="Você se lambeu... Isso foi estranho!",
+                color=0xE8E8E8
+            )
+            embed.set_image(url=gif_url)
+            return await ctx.send(embed=embed)
 
         embed = discord.Embed(
-            title="👅 Lamber no Ar!",
-            description=f"{ctx.author.mention} lambeu {membro.mention}! Que momento... peculiar!",
+            title="👅 Lambida!",
+            description=f"{ctx.author.mention} lambeu {membro.mention}!",
             color=0xE8E8E8
         )
-        embed.set_image(url=random.choice(gifs))
-        
+        embed.set_image(url=gif_url)
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar.url if ctx.author.avatar else None)
-        embed.set_footer(text="Sinta o sabor da amizade (ou não)!", icon_url="https://emoji.discord-static.com/emojis/795123456789012345.gif?v=1")
+        embed.set_footer(text="Isso foi estranho!")
         embed.timestamp = discord.utils.utcnow()
-        
-        view = LamberView(ctx.author, membro)
-        await ctx.send(embed=embed, view=view)
+
+        await ctx.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(Lamber(bot))
