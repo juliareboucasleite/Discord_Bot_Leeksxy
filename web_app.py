@@ -109,7 +109,7 @@ def send_email():
 @app.route('/invite')
 def invite():
     # Redireciona para o URL de autorização do bot no Discord
-    return redirect(DISCORD_BOT_INVITE_URL)
+    return redirect("https://discord.com/oauth2/authorize?client_id=1339496000960655442&permissions=8&scope=bot%20applications.commands")
 
 @app.route('/dashboard')
 def dashboard():
