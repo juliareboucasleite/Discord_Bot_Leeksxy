@@ -1,13 +1,15 @@
 import discord
 from discord.ext import commands
+import aiohttp
 import random
+from typing import Optional
 
 class Abraco(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(name="abraco", aliases=["abraço", "hug", "abracar"])
-    async def abracar_command(self, ctx, membro: discord.Member = None):
+    async def abracar_command(self, ctx, membro: Optional[discord.Member] = None):
         await ctx.message.delete()
 
         gifs = [
@@ -25,6 +27,19 @@ class Abraco(commands.Cog):
             "https://c.tenor.com/0iKj4SgG9YMAAAAC/love-anime.gif"
         ]
 
+        # Tenta pegar GIF da API waifu.pics
+        try:
+            import aiohttp
+            async with aiohttp.ClientSession() as session:
+                async with session.get("https://api.waifu.pics/sfw/hug") as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        gif_url = data["url"]
+                    else:
+                        gif_url = random.choice(gifs)
+        except Exception:
+            gif_url = random.choice(gifs)
+
         if not membro:
             embed = discord.Embed(
                 title="🤔 Quem abraçar?",
@@ -39,7 +54,7 @@ class Abraco(commands.Cog):
                 description="Obrigado por me abraçar! Fico feliz em receber carinho!",
                 color=0xE8E8E8
             )
-            embed.set_image(url=random.choice(gifs)) # Adiciona um gif de abraço para o bot
+            embed.set_image(url=gif_url)
             return await ctx.send(embed=embed)
 
         if membro.id == ctx.author.id:
@@ -48,16 +63,15 @@ class Abraco(commands.Cog):
                 description="Você se abraçou sozinho... É fofo e um pouco triste ao mesmo tempo!",
                 color=0xE8E8E8
             )
-            embed.set_image(url=random.choice(gifs))
+            embed.set_image(url=gif_url)
             return await ctx.send(embed=embed)
 
         embed = discord.Embed(
             title="🤗 Abraço Recebido!",
             description=f"{ctx.author.mention} deu um abraço apertado em {membro.mention}!",
-            color=0xE8E8E8 # Cor cinza claro para consistência
+            color=0xE8E8E8
         )
-        embed.set_image(url=random.choice(gifs))
-        
+        embed.set_image(url=gif_url)
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar.url if ctx.author.avatar else None)
         embed.set_footer(text="Sinta o carinho!")
         embed.timestamp = discord.utils.utcnow()
