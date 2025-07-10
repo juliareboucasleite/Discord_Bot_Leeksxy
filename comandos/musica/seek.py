@@ -8,7 +8,6 @@ class Seek(commands.Cog):
 
     @commands.command(name="seek", aliases=["irpara"])
     async def seek_command(self, ctx, position: str):
-        global now_playing
         vc = ctx.voice_client
 
         if not vc or not vc.is_playing():

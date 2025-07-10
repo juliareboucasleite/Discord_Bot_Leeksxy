@@ -8,7 +8,6 @@ class Pause(commands.Cog):
 
     @commands.command(name="pause", aliases=["pausar"])
     async def pause_command(self, ctx):
-        global now_playing
         vc = ctx.voice_client
 
         if not vc or not vc.is_playing():

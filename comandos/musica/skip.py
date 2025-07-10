@@ -10,7 +10,6 @@ class Skip(commands.Cog):
 
     @commands.command(name="skip", aliases=["pular"])
     async def skip_command(self, ctx):
-        global now_playing, looping
         vc = ctx.voice_client
 
         if not vc:

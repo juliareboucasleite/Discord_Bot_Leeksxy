@@ -10,7 +10,6 @@ class Shuffle(commands.Cog):
 
     @commands.command(name="shuffle", aliases=["embaralhar"])
     async def shuffle_command(self, ctx):
-        global now_playing
         vc = ctx.voice_client
 
         if not vc:

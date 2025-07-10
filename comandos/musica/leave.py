@@ -19,7 +19,6 @@ class Leave(commands.Cog):
         await ctx.guild.voice_client.disconnect()
         
         # Limpar now_playing quando o bot sair do canal de voz
-        global now_playing
         now_playing = {'title': 'Nenhuma música tocando', 'url': None, 'requester': None}
 
         await ctx.send(embed=embed)

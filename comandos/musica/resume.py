@@ -8,7 +8,6 @@ class Resume(commands.Cog):
 
     @commands.command(name="resume", aliases=["continuar", "unpause"])
     async def resume_command(self, ctx):
-        global now_playing
         vc = ctx.voice_client
 
         if not vc or not vc.is_paused():

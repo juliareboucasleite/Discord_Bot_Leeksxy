@@ -8,7 +8,6 @@ class Loop(commands.Cog):
 
     @commands.command(name="loop", aliases=["repetir", "repetir_musica"])
     async def loop_command(self, ctx):
-        global looping
         if not ctx.guild.voice_client:
             await ctx.send("❌ O bot não está em um canal de voz.", ephemeral=True)
             return
