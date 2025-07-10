@@ -28,6 +28,7 @@ class IA(commands.Cog):
                 resposta = "Desculpe, não consegui gerar uma resposta."
             await ctx.send(f"🤖 {resposta}")
         except Exception as e:
+            print(f"Erro IA: {e}")
             await ctx.send(f"❌ Erro ao consultar a IA: {e}")
 
 async def setup(bot):
