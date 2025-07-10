@@ -104,11 +104,11 @@ async def setup_db():
             )
         ''')
         conn.commit()
-    print("✅ Banco de dados inicializado e tabelas verificadas.")
+    print("Banco de dados inicializado e tabelas verificadas.")
 
 @bot.event
 async def on_ready():
-    print(f"✅ Bot {bot.user} está online e pronto!")
+    print(f"Bot {bot.user} está online e pronto!")
     print(f"ID do Bot: {bot.user.id}")
     print(f"Conectado em {len(bot.guilds)} servidores")
     await bot.change_presence(
