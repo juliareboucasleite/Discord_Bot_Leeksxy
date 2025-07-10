@@ -99,10 +99,10 @@ class Musica(commands.Cog):
             try:
                 with yt_dlp.YoutubeDL(self.YTDL_OPTIONS) as ydl:
                     info = ydl.extract_info(search, download=False)
-                    if 'entries' in info:
+                    if info and 'entries' in info:
                         info = info['entries'][0]
                     
-                    url = info.get('url')
+                    url = info.get('url') if info else None
                     if not url:
                         ytdl_opts_stream = {
                             'format': 'bestaudio/best',
@@ -110,18 +110,19 @@ class Musica(commands.Cog):
                             'no_warnings': True,
                             'extract_flat': False,
                             'noplaylist': True,
+                            'cookiefile': 'cookies.txt',
                         }
                         with yt_dlp.YoutubeDL(ytdl_opts_stream) as ydl_stream:
                             stream_info = ydl_stream.extract_info(search, download=False)
-                            if 'entries' in stream_info:
+                            if stream_info and 'entries' in stream_info:
                                 stream_info = stream_info['entries'][0]
-                            url = stream_info.get('url')
+                            url = stream_info.get('url') if stream_info else None
 
                     if not url:
                         return await ctx.send("❌ Não foi possível encontrar uma fonte de áudio válida para sua busca.")
 
-                    title = info.get('title', 'Título desconhecido')
-                    duration = info.get('duration', 0)
+                    title = info.get('title', 'Título desconhecido') if info else 'Título desconhecido'
+                    duration = info.get('duration', 0) if info else 0
                     
                     q = get_queue(ctx.guild.id)
                     q.append({
@@ -129,7 +130,7 @@ class Musica(commands.Cog):
                         'title': title,
                         'author': ctx.author,
                         'duration': duration,
-                        'thumbnail': info.get('thumbnail')
+                        'thumbnail': info.get('thumbnail') if info else None
                     })
 
                     if not ctx.voice_client.is_playing():
@@ -143,7 +144,7 @@ class Musica(commands.Cog):
                         if duration:
                             embed.add_field(name="⏱️ Duração", value=f"{duration//60}:{duration%60:02d}", inline=True)
                         embed.add_field(name="👤 Pedido por", value=f"{ctx.author.name}", inline=True)
-                        if info.get('thumbnail'):
+                        if info and info.get('thumbnail'):
                             embed.set_thumbnail(url=info['thumbnail'])
                         embed.set_footer(text=f"Posição na fila: {len(q)}", icon_url=ctx.author.avatar.url if ctx.author.avatar else None)
                         await ctx.send(embed=embed)
