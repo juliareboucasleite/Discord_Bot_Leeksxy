@@ -8,6 +8,7 @@ import sys
 from fuzzywuzzy import process
 from dotenv import load_dotenv
 from contextlib import contextmanager
+import openai
 
 load_dotenv()
 
@@ -304,6 +305,41 @@ async def setup_comandos():
                         print(f"【✔】Comando {file[:-3]} carregado!")
                     except Exception as e:
                         print(f"【✘】Falha ao carregar o comando {file[:-3]}: {e}")
+
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    if bot.user and bot.user in message.mentions:
+        pergunta = message.content.replace(f'<@{bot.user.id}>', '').strip()
+        if not pergunta:
+            await message.channel.send("Me pergunte algo!")
+            return
+
+        await message.channel.trigger_typing()
+        try:
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "Você é um assistente útil e responde em português."},
+                    {"role": "user", "content": pergunta}
+                ],
+                max_tokens=300,
+                temperature=0.7,
+            )
+            resposta = response.choices[0].message.content
+            if resposta:
+                resposta = resposta.strip()
+            else:
+                resposta = "Desculpe, não consegui gerar uma resposta."
+            await message.channel.send(f"🤖 {resposta}")
+        except Exception as e:
+            await message.channel.send(f"❌ Erro ao consultar a IA: {e}")
+
+    await bot.process_commands(message)
 
 async def main():
     await setup_db()
