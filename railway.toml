@@ -11,4 +11,4 @@ restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 
 [deploy.env]
-PYTHON_VERSION = "3.10" 
+PYTHON_VERSION = "3.10.11" 
