@@ -6,7 +6,6 @@ import os
 import json
 import sqlite3
 import threading
-from .utils import now_playing, looping
 
 queue = {}
 
@@ -163,8 +162,6 @@ class Musica(commands.Cog):
         q = get_queue(ctx.guild.id)
         if not q:
             await ctx.send("✅ Fila finalizada. O bot permanecerá no canal.")
-            now_playing[ctx.guild.id] = {'title': 'Nenhuma música tocando', 'url': None, 'requester': None}
-            looping[ctx.guild.id] = False
             return
 
         song_info = q.pop(0)
@@ -174,21 +171,7 @@ class Musica(commands.Cog):
         duration = song_info['duration']
         thumbnail = song_info.get('thumbnail')
 
-        now_playing[ctx.guild.id] = {'title': title, 'url': url, 'requester': author.display_name}
-
-        # Save to history
-        try:
-            conn = sqlite3.connect('dados.db')
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO history (guild_id, user_id, title, url)
-                VALUES (?, ?, ?, ?)
-            ''', (ctx.guild.id, author.id, title, url))
-            conn.commit()
-        except Exception as e:
-            print(f"ERROR: Failed to save to history: {e}")
-        finally:
-            conn.close()
+        # Remover todas as chamadas para now_playing e looping
 
         max_retries = 3
         retry_count = 0
@@ -208,16 +191,6 @@ class Musica(commands.Cog):
                             ctx.send(f"❌ Erro na reprodução: {str(error)}"), 
                             self.bot.loop
                         )
-                    
-                    if looping.get(ctx.guild.id) and now_playing.get(ctx.guild.id):
-                        current_song_info = {
-                            'url': now_playing[ctx.guild.id]['url'],
-                            'title': now_playing[ctx.guild.id]['title'],
-                            'author': now_playing[ctx.guild.id]['requester'],
-                            'duration': duration,
-                            'thumbnail': thumbnail
-                        }
-                        q.insert(0, current_song_info)
                     
                     asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop)
 

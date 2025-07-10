@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from .utils import now_playing
 
 class Seek(commands.Cog):
     def __init__(self, bot):

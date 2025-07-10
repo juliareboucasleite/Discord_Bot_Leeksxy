@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
-from comandos.musica.play import queue
-from .utils import now_playing
+from comandos.musica.musica import queue
 
 class Remove(commands.Cog):
     def __init__(self, bot):
