@@ -10,7 +10,6 @@ class Stop(commands.Cog):
 
     @commands.command(name="stop", aliases=["parar", "desativar"])
     async def stop_command(self, ctx):
-        global now_playing, looping
         vc = ctx.voice_client
 
         if not vc:

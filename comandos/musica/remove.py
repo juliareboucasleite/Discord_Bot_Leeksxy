@@ -9,7 +9,6 @@ class Remove(commands.Cog):
 
     @commands.command(name="remove", aliases=["remover"])
     async def remove_command(self, ctx, index: int):
-        global now_playing
         vc = ctx.voice_client
 
         if not vc:
