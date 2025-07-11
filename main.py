@@ -1,13 +1,14 @@
 import discord
 from discord.ext import commands
 import os
+import sys
 import logging
 import asyncio
 import sqlite3
-import sys
-from fuzzywuzzy import process
 from dotenv import load_dotenv
 from contextlib import contextmanager
+from structures.DiscordMusicBot import DiscordMusicBot
+from fuzzywuzzy import process
 import openai
 
 load_dotenv()
@@ -31,9 +32,6 @@ logger.setLevel(logging.DEBUG)
 
 # Configurar FFmpeg
 os.environ['PATH'] = os.path.dirname(os.path.abspath(__file__)) + os.pathsep + os.environ['PATH']
-
-intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="'", intents=intents, help_command=None)
 
 DATABASE = 'dados.db'
 
@@ -107,6 +105,12 @@ async def setup_db():
         conn.commit()
     print("【✔】Banco de dados inicializado e tabelas verificadas.")
 
+intents = discord.Intents.all()
+bot = DiscordMusicBot(command_prefix="'", intents=intents)
+
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Eventos globais (mantidos)
 @bot.event
 async def on_ready():
     print(f"【✔】Bot {bot.user} está online e pronto!")
@@ -127,21 +131,19 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         command_name = ctx.message.content.split(' ')[0][len(ctx.prefix):]
         all_commands = [cmd.name for cmd in bot.commands]
-        
         best_match = process.extractOne(command_name, all_commands)
-        
         if best_match and best_match[1] >= 70:
             suggestion = best_match[0]
             embed = discord.Embed(
                 title="❌ Comando Não Encontrado",
-                description=f"O comando `'{command_name}` não existe. Você quis dizer `'{suggestion}`?",
+                description=f"O comando `'{{command_name}}` não existe. Você quis dizer `'{{suggestion}}`?",
                 color=0xFF0000
             )
             await ctx.send(embed=embed)
         else:
             embed = discord.Embed(
                 title="❌ Comando Não Encontrado",
-                description=f"O comando `'{command_name}` não existe. Use `'ajuda` para ver a lista de comandos disponíveis.",
+                description=f"O comando `'{{command_name}}` não existe. Use `'ajuda` para ver a lista de comandos disponíveis.",
                 color=0xFF0000
             )
             await ctx.send(embed=embed)
@@ -160,7 +162,6 @@ async def on_command_error(ctx, error):
         )
         await ctx.send(embed=embed)
     else:
-        logger.error(f"Erro não tratado no comando '{ctx.command}': {error}")
         embed = discord.Embed(
             title="❌ Erro",
             description="Ocorreu um erro ao executar o comando. Por favor, tente novamente mais tarde.",
@@ -295,17 +296,6 @@ async def on_raw_reaction_remove(payload):
                 except Exception as e:
                     logger.error(f"Erro ao remover cargo via reação de {member.display_name}: {e}")
 
-async def setup_comandos():
-    for folder in os.listdir("comandos"):
-        if os.path.isdir(os.path.join("comandos", folder)):
-            for file in os.listdir(os.path.join("comandos", folder)):
-                if file.endswith(".py") and not file.startswith("__"):
-                    try:
-                        await bot.load_extension(f"comandos.{folder}.{file[:-3]}")
-                        print(f"【✔】Comando {file[:-3]} carregado!")
-                    except Exception as e:
-                        print(f"【✘】Falha ao carregar o comando {file[:-3]}: {e}")
-
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @bot.event
@@ -343,7 +333,6 @@ async def on_message(message):
 
 async def main():
     await setup_db()
-    await setup_comandos()
     
     # Iniciar o bot
     if TOKEN is not None:

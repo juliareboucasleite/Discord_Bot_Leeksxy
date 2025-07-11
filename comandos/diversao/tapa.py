@@ -12,9 +12,9 @@ class Tapa(commands.Cog):
         await ctx.message.delete()
 
         gifs = [
-            "https://c.tenor.com/1.gif",
-            "https://c.tenor.com/2.gif"
-            # Adicione mais GIFs locais se quiser
+         'https://imgur.com/1tEHNcK.gif',
+        'https://imgur.com/GSlsYO1.gif',
+        'https://imgur.com/mji8DpH.gif'
         ]
 
         # Tenta pegar GIF da API waifu.pics

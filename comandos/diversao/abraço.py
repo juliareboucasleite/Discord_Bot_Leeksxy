@@ -8,23 +8,20 @@ class Abraco(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="abraco", aliases=["abraço", "hug", "abracar"])
+    @commands.command(name="abraco", aliases=["abraço", "hug", "abracar", "abraçar"])
     async def abracar_command(self, ctx, membro: Optional[discord.Member] = None):
         await ctx.message.delete()
 
         gifs = [
-            "https://c.tenor.com/P4z6y1PjC5wAAAAC/anime-hug.gif",
-            "https://c.tenor.com/p917G_R_c7QAAAAC/peach-goma-hug.gif",
-            "https://c.tenor.com/S6-J_42FzXkAAAAC/goma-peach-hug.gif",
-            "https://c.tenor.com/k4p3YF_84tIAAAAC/gif-hug.gif",
-            "https://c.tenor.com/I3u1rNfM700AAAAC/hug-anime-hug.gif",
-            "https://c.tenor.com/QjBqZ71l5YgAAAAC/hug-anime.gif",
-            "https://c.tenor.com/iJ6qg8C3-oAAAAAC/hug-cuddle.gif",
-            "https://c.tenor.com/tC6F9_vGj04AAAAC/kiss-anime.gif",
-            "https://c.tenor.com/9l89nLq-RzQAAAAC/dias-de-escola-beijo.gif",
-            "https://c.tenor.com/n1h8yW4T-lQAAAAC/anime-couple-love.gif",
-            "https://c.tenor.com/9xS76mPgaEIAAAAC/milk-and-mocha-bear-couple.gif",
-            "https://c.tenor.com/0iKj4SgG9YMAAAAC/love-anime.gif"
+         'https://media.discordapp.net/attachments/733751317041905745/736632457578676254/hug.gif?width=426&height=395',
+          'https://media.discordapp.net/attachments/733751317041905745/736632470820225064/hug4.gif?width=198&height=134',
+          'https://media.discordapp.net/attachments/733751317041905745/736632483575103498/hug5.gif?width=198&height=175',
+          'https://media.discordapp.net/attachments/733751317041905745/736632488025129000/hug7.gif?width=198&height=124',
+          'https://media.discordapp.net/attachments/733751317041905745/736632515544219722/hug2.gif?width=379&height=395',
+         'https://media.discordapp.net/attachments/733751317041905745/736632518727696464/hug8.gif?width=450&height=251',
+         'https://media.discordapp.net/attachments/733751317041905745/736632544526860388/hug6.gif?width=450&height=227',
+         'https://media.discordapp.net/attachments/733751317041905745/736632554005856286/hug3.gif?width=448&height=250',
+         'https://media.discordapp.net/attachments/733751317041905745/736632565309505596/hug1.gif?width=448&height=250'
         ]
 
         # Tenta pegar GIF da API waifu.pics

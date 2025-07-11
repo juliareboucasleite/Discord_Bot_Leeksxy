@@ -171,6 +171,16 @@ class Musica(commands.Cog):
         duration = song_info['duration']
         thumbnail = song_info.get('thumbnail')
 
+        # Atualiza a música atual para o painel e fila
+        from comandos.musica.utils import now_playing
+        now_playing[ctx.guild.id] = {
+            'title': title,
+            'url': url,
+            'requester': author.name,
+            'thumbnail': thumbnail,
+            'duration': duration
+        }
+
         # Remover todas as chamadas para now_playing e looping
 
         max_retries = 3

@@ -2,13 +2,14 @@ import discord
 from discord.ext import commands
 import aiohttp
 import random
+from typing import Optional
 
 class Cuddle(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(name="cuddle", aliases=["carinho", "acariciar", "afagar"], help='Faz carinho em um membro. Uso: \'cuddle <@membro>')
-    async def cuddle(self, ctx, membro: discord.Member = None):
+    async def cuddle(self, ctx, membro: Optional[discord.Member] = None):
         await ctx.message.delete()
 
         # Lista de GIFs de carinho (você pode adicionar mais se desejar)
