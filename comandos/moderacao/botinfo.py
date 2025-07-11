@@ -2,6 +2,12 @@ from discord.ext import commands
 import discord
 import platform
 import datetime
+import os
+
+OWNER_IDS = os.getenv("CRIADORA_ID", "").split(",")
+DISCORD_BOT_INVITE_URL = os.getenv("DISCORD_BOT_INVITE_URL", "https://discord.com/oauth2/authorize")
+LINK_SERVIDOR = os.getenv("LINK_SERVIDOR", "https://discord.gg/seulink")
+DATA_CRIACAO = os.getenv("DATA_CRIACAO", "6 de novembro de 2021")
 
 class BotInfo(commands.Cog):
     def __init__(self, bot):
@@ -20,21 +26,27 @@ class BotInfo(commands.Cog):
             description=f"Olá {ctx.author.mention}! Tudo bem com vc? Espero que sim! Eu procuro divertir as pessoas com meus comandos (**Se você não sabe meu prefix é '{ctx.prefix}'**)\nMinhas informações estão abaixo!",
             color=discord.Color.blue()
         )
-        embed.add_field(name="Criadora:", value="<@916737425978589235>", inline=False)
+        # Monta a lista de donos do bot (menção + ID)
+        mentions = []
+        for oid in OWNER_IDS:
+            oid = oid.strip()
+            if oid.isdigit():
+                user = bot.get_user(int(oid))
+                if user:
+                    mentions.append(f"{user.mention} ({oid})")
+                else:
+                    mentions.append(f"<@{oid}> ({oid})")
+        donos_str = '\n'.join(mentions) if mentions else 'Nenhum dono configurado no .env!'
+        embed.add_field(name="Criadora(s):", value=donos_str, inline=False)
         embed.add_field(name=":blond_haired_man: Usuários", value=f"`{len(bot.users)}`", inline=True)
         embed.add_field(name="Servers", value=f"`{len(bot.guilds)}`", inline=True)
         embed.add_field(name="😴 Uptime", value=f"{days}d {hours}h {minutes}m {seconds}s", inline=False)
         embed.add_field(name="💬 Canais", value=f"`{len(bot.channels)}`", inline=True)
         embed.add_field(name="📁 Emojis", value=f"`{len(bot.emojis)}`", inline=True)
-        embed.add_field(name="🔢 Fui criado em", value="6 de novembro de 2021", inline=False)
-        embed.add_field(name="Suporte", value="[clique aqui](https://discord.gg/fv99BGYKHh) para entrar", inline=True)
-        embed.add_field(name="Invite", value="[clique aqui](https://discord.com/api/oauth2/authorize?client_id=904397870856306708&permissions=0&scope=bot) para me convidar", inline=True)
+        embed.add_field(name="🔢 Fui criado em", value=DATA_CRIACAO, inline=False)
+        embed.add_field(name="Suporte", value=f"[clique aqui]({LINK_SERVIDOR}) para entrar", inline=True)
+        embed.add_field(name="Invite", value=f"[clique aqui]({DISCORD_BOT_INVITE_URL}) para me convidar", inline=True)
         embed.set_footer(text="Zik")
         embed.timestamp = discord.utils.utcnow()
 
         await ctx.send(embed=embed)
-
-async def setup(bot):
-    # Salva o horário de início do bot para calcular uptime
-    if not hasattr(bot, 'launch_time'):
-        bot.launch_time

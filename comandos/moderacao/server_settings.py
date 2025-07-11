@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import sqlite3
+from typing import Optional
 
 class ServerSettings(commands.Cog):
     def __init__(self, bot):
@@ -38,9 +39,69 @@ class ServerSettings(commands.Cog):
         conn.close()
         return settings
 
+    def update_antilink_status(self, guild_id, status):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT OR IGNORE INTO guild_settings (guild_id) VALUES (?)
+        ''', (guild_id,))
+        cursor.execute('''
+            UPDATE guild_settings SET antilink_status = ? WHERE guild_id = ?
+        ''', (status, guild_id))
+        conn.commit()
+        conn.close()
+
+    def get_antilink_status(self, guild_id):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT antilink_status FROM guild_settings WHERE guild_id = ?', (guild_id,))
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result else 'off'
+
+    def update_prefix(self, guild_id, prefix):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT OR IGNORE INTO guild_settings (guild_id) VALUES (?)
+        ''', (guild_id,))
+        cursor.execute('''
+            UPDATE guild_settings SET custom_prefix = ? WHERE guild_id = ?
+        ''', (prefix, guild_id))
+        conn.commit()
+        conn.close()
+
+    def get_prefix(self, guild_id):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT custom_prefix FROM guild_settings WHERE guild_id = ?', (guild_id,))
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result and result[0] else "'"
+
+    def update_dj_role(self, guild_id, role_id):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT OR IGNORE INTO guild_settings (guild_id) VALUES (?)
+        ''', (guild_id,))
+        cursor.execute('''
+            UPDATE guild_settings SET dj_role_id = ? WHERE guild_id = ?
+        ''', (role_id, guild_id))
+        conn.commit()
+        conn.close()
+
+    def get_dj_role(self, guild_id):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT dj_role_id FROM guild_settings WHERE guild_id = ?', (guild_id,))
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result and result[0] else None
+
     @commands.command(name="setwelcomechannel", aliases=["swc", "definircanalboasvindas", "setwc"])
     @commands.has_permissions(administrator=True)
-    async def set_welcome_channel(self, ctx, channel: discord.TextChannel = None):
+    async def set_welcome_channel(self, ctx, channel: Optional[discord.TextChannel] = None):
         guild_id = ctx.guild.id
         if channel:
             self.update_guild_setting(guild_id, "welcome_channel_id", channel.id)
@@ -60,7 +121,7 @@ class ServerSettings(commands.Cog):
 
     @commands.command(name="setleavechannel", aliases=["slc", "definircanalsaida", "setlc"])
     @commands.has_permissions(administrator=True)
-    async def set_leave_channel(self, ctx, channel: discord.TextChannel = None):
+    async def set_leave_channel(self, ctx, channel: Optional[discord.TextChannel] = None):
         guild_id = ctx.guild.id
         if channel:
             self.update_guild_setting(guild_id, "leave_channel_id", channel.id)
@@ -80,7 +141,7 @@ class ServerSettings(commands.Cog):
 
     @commands.command(name="setautorole", aliases=["sar", "definirautorole", "setupautorole"])
     @commands.has_permissions(administrator=True)
-    async def set_autorole(self, ctx, role: discord.Role = None):
+    async def set_autorole(self, ctx, role: Optional[discord.Role] = None):
         guild_id = ctx.guild.id
         if role:
             self.update_guild_setting(guild_id, "autorole_id", role.id)

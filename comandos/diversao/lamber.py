@@ -25,7 +25,9 @@ class LamberView(discord.ui.View):
             'https://media.tenor.com/1ChcN3szUGkAAAAC/lick-licking.gif',
             'https://media.tenor.com/zkVq_fXwM4wAAAAC/lick-anime-kiss.gif',
             'https://media.tenor.com/F0r0p_Y0_LAAAAAC/lick-anime-cute.gif',
-            'https://media.tenor.com/gK9e4H_2m9QAAAAC/lick-cute.gif'
+            'https://media.tenor.com/gK9e4H_2m9QAAAAC/lick-cute.gif',
+            'https://cdn.nekotina.com/images/OnFejF0Zi.gif',
+            'https://cdn.nekotina.com/images/ZR7TmCXE.gif'
         ]
 
         embed = discord.Embed(

@@ -15,6 +15,10 @@ class Tapa(commands.Cog):
          'https://imgur.com/1tEHNcK.gif',
         'https://imgur.com/GSlsYO1.gif',
         'https://imgur.com/mji8DpH.gif'
+        'https://rrp-production.loritta.website/img/0165248d616472a63ebf4c66ee46b4855be315d3.gif',
+        'https://rrp-production.loritta.website/img/3541c91c2c9c7d11ab9f5848a119e95f3169b076.gif',
+        'https://rrp-production.loritta.website/img/d0c240de2645e9b733ba5129acaedeb7b9f6e83a.gif'
+
         ]
 
         # Tenta pegar GIF da API waifu.pics

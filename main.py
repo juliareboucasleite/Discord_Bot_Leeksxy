@@ -10,6 +10,8 @@ from contextlib import contextmanager
 from structures.DiscordMusicBot import DiscordMusicBot
 from fuzzywuzzy import process
 import openai
+import glob
+import importlib
 
 load_dotenv()
 
@@ -70,7 +72,11 @@ async def setup_db():
                 guild_id INTEGER PRIMARY KEY,
                 welcome_channel_id INTEGER,
                 leave_channel_id INTEGER,
-                autorole_id INTEGER
+                autorole_id INTEGER,
+                antilink_status TEXT DEFAULT 'off',
+                custom_prefix TEXT DEFAULT "'",
+                dj_role_id INTEGER,
+                sugestao_channel_id INTEGER
             )
         ''')
         cursor.execute('''
@@ -331,9 +337,19 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
+async def load_cogs():
+    for file in glob.glob("comandos/**/*.py", recursive=True):
+        if not file.endswith("__init__.py"):
+            ext = file.replace("/", ".").replace("\\", ".")[:-3]
+            try:
+                await bot.load_extension(ext)
+                print(f"Cog carregado: {ext}")
+            except Exception as e:
+                print(f"Erro ao carregar {ext}: {e}")
+
 async def main():
     await setup_db()
-    
+    await load_cogs()
     # Iniciar o bot
     if TOKEN is not None:
         await bot.start(TOKEN)
