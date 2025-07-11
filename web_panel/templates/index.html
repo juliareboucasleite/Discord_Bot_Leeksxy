@@ -8,28 +8,72 @@
     <title>Leeksxy Bot</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='Photos/Foto_Perfil.png') }}" type="image/x-icon">
+    <!-- Adicione no <head> do seu template, se ainda não estiver -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
-    {% include 'menu.html' %}
+    <!-- Adicione no <head> do seu template -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <header class="hero">
-        <div class="container content">
-            <div class="hero-text">
-                <h2>Seu Servidor, Suas Regras.</h2>
-                <p>Personalize o Leeksxy Bot para o seu servidor Discord com facilidade.</p>
-                <div class="hero-buttons">
-                    <a href="/invite" class="btn primary"><i class="fab fa-discord"></i> Convidar Bot</a>
-                    <a href="/dashboard" class="btn secondary">Dashboard</a>
-                </div>
-            </div>
-            <div class="hero-image">
-                <img src="{{ url_for('static', filename='Photos/Foto_Perfil.png') }}" alt="Leeksxy Bot Avatar" class="bot-avatar">
-            </div>
+    <!-- Navbar horizontal moderna -->
+    <nav class="navbar navbar-expand-lg" style="background: #c2c2c2;">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold" style="color: #fff; font-size: 1.5rem; letter-spacing: 2px;" href="/">
+          <i class="fa-solid fa-robot" style="color: #c2c2c2;"></i> Leeksxy
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link text-white" href="/suporte"><i class="fa-brands fa-discord"></i> SUPORTE</a></li>
+            <li class="nav-item"><a class="nav-link text-white" href="/comandos"><i class="fa-solid fa-code-branch"></i> COMANDOS</a></li>
+            <li class="nav-item"><a class="nav-link text-white" href="/daily"><i class="fa-solid fa-gift"></i> DAILY</a></li>
+            <li class="nav-item"><a class="nav-link text-white" href="/blog"><i class="fa-solid fa-bullhorn"></i> BLOG</a></li>
+            <li class="nav-item"><a class="nav-link text-white" href="/wiki"><i class="fa-solid fa-book"></i> WIKI</a></li>
+          </ul>
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link text-white" href="#" id="toggleTheme"><i class="fa-solid fa-moon"></i></a></li>
+            <li class="nav-item"><a class="nav-link text-white" href="#" id="toggleLang">
+              <i class="fa-solid fa-globe"></i> <span id="langLabel">PT-BR</span>
+            </a></li>
+            {% if logged_in %}
+              <li class="nav-item d-flex align-items-center">
+                <img src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.png?size=32" alt="avatar" class="rounded-circle me-2" style="width:32px;height:32px; border:2px solid #fff200;">
+                <span class="navbar-text fw-bold text-white">{{ user.username }}</span>
+              </li>
+              <li class="nav-item"><a class="btn btn-outline-light ms-2" href="/logout">Logout</a></li>
+            {% else %}
+              <li class="nav-item"><a class="btn btn-light ms-2" href="/login"><i class="fa-brands fa-discord"></i> Login com Discord</a></li>
+            {% endif %}
+          </ul>
         </div>
-    </header>
+      </div>
+    </nav>
+
+    <!-- Conteúdo da página abaixo do menu -->
+
+    <section class="hero-mabel">
+      <div class="hero-content">
+        <h1>Olá, eu sou a <span class="brand">Leeksxy</span></h1>
+        <p class="subtitle">Seu bot de Discord divertido e inteligente!</p>
+        <div class="hero-buttons" style="flex-direction: column; align-items: flex-start; gap: 0;">
+          <div style="display: flex; gap: 18px;">
+            <a href="/invite" class="btn primary">+ Me adicione!</a>
+            <a href="/saiba-mais" class="btn secondary">⭐ Saiba Mais</a>
+          </div>
+          <a href="/dashboard" class="btn dashboard" style="margin-top: 18px; min-width: 240px; text-align: center;">⚙ Painel de Controle</a>
+        </div>
+      </div>
+      <div class="hero-mabel-img">
+        <img src="{{ url_for('static', filename='Photos/Mabel_exemplo.png') }}" alt="Mabel" class="mabel-float">
+      </div>
+    </section>
+   
 
     <section class="section">
         <div class="container">
@@ -93,12 +137,64 @@
 
     <div class="wave-separator"></div>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Leeksxy Bot. Todos os direitos reservados.</p>
-            <p>Feito com ❤️ por <a href="/portfolio" style="color: #7289DA; text-decoration: none;">Leeksxy</a></p>
+    <footer style="background: #c2c2c2; color: #fff; padding: 40px 0 20px 0; margin-top: 60px;">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <h5>Leeksxy Bot</h5>
+            <ul class="list-unstyled">
+              <li><a href="/" class="text-white">Página Inicial</a></li>
+              <li><a href="/comandos" class="text-white">Comandos</a></li>
+              <li><a href="/dashboard" class="text-white">Painel de Controle</a></li>
+              <li><a href="/suporte" class="text-white">Suporte</a></li>
+              <li><a href="/daily" class="text-white">Daily</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="footer-section">
+              <strong>Recursos</strong><br>
+              <a href="/diretrizes" class="footer-link">Diretrizes da Comunidade</a>
+              <a href="/termos" class="footer-link">Termos de Serviço & Política de Privacidade</a>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3 text-center">
+            <h5>Redes Sociais</h5>
+            <a href="https://github.com/juliareboucasleite" class="text-white me-3" target="_blank"><i class="fab fa-github fa-2x"></i></a>
+            <a href="https://twitter.com/leeksxy" class="text-white me-3" target="_blank"><i class="fab fa-twitter fa-2x"></i></a>
+            <a href="https://www.instagram.com/_julissz_?igsh=MXdkODM2bW1oY2F3Yw==" class="text-white me-3" target="_blank"><i class="fab fa-instagram fa-2x"></i></a>
+            <a href="https://www.youtube.com/@Leeksxy" class="text-white me-3" target="_blank"><i class="fab fa-youtube fa-2x"></i></a>
+            <a href="https://twitch.tv/leeksxy" class="text-white" target="_blank"><i class="fab fa-twitch fa-2x"></i></a>
+          </div>
+          <div class="col-md-3 mb-3">
+            <h5>Sobre</h5>
+            <ul class="list-unstyled">
+              <li>Desenvolvido por <b>Leeksxy</b></li>
+              <li><a href="mailto:juliareboucasleite@email.com" class="text-white">Contato por e-mail</a></li>
+            </ul>
+          </div>
         </div>
+        <div class="text-center mt-3">
+          <small>© Julia Reboucas Leite 2021-2026  Leeksxy Bot — Todos os direitos reservados</small>
+        </div>
+      </div>
     </footer>
+
+    <!-- Seção de destaque com botão à direita, ocupando toda a largura -->
+<div style="background: #c2c2c2; padding: 32px 0; border-top: 1px solid #d1d5db; border-radius: 0 0 16px 16px; width: 100vw; margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%);">
+  <div class="container">
+    <div class="row align-items-center justify-content-between">
+      <div class="col-md-8 text-md-start text-center mb-3 mb-md-0">
+        <h3 style="font-weight: 700; color: #23272a;">Vamos transformar o seu servidor em um lugar incrível, juntos.</h3>
+        <p style="color: #6c757d; font-size: 1.1rem;">Junte-se a outros servidores e adicione o Leeksxy Bot para facilitar a administração e diversão do seu Discord!</p>
+      </div>
+      <div class="col-md-4 text-md-end text-center">
+        <a href="https://discord.com/oauth2/authorize?client_id=SEU_CLIENT_ID&scope=bot" class="btn btn-dark btn-lg" style="background: #444; color: #fff; border-radius: 8px; font-weight: 600; transition: background 0.2s;">
+          <i class="fa-solid fa-plus"></i> Me adicione!
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
     <!-- Support Server Modal -->
     <div id="supportModal" class="modal-overlay">
@@ -106,7 +202,7 @@
             <span class="modal-close">&times;</span>
             <h2>Precisa de Ajuda?</h2>
             <p>Nossa equipe está pronta para te ajudar com qualquer dúvida ou problema. Clique no botão abaixo para entrar na comunidade do Leeksxy Bot.</p>
-            <a href="https://discord.gg/pJAuxtr2QQ" class="btn primary" target="_blank"><i class="fab fa-discord"></i> Entrar no Servidor de Suporte</a>
+            <a href="https://discord.gg/fEgXHcZQNg" class="btn primary" target="_blank"><i class="fab fa-discord"></i> Entrar no Servidor de Suporte</a>
         </div>
     </div>
 
@@ -117,7 +213,7 @@
             <h2>Entre em Contato Conosco</h2>
             <p>Preencha o formulário abaixo para nos enviar uma mensagem. Responderemos o mais breve possível!</p>
             <form id="contactForm" action="/send_email" method="POST" class="contact-form">
-                <input type="hidden" name="to_email" value="leeksxy@gmail.com">
+                <input type="hidden" name="to_email" value="juliareboucasleite@gmail.com">
                 <label for="name">Seu Nome:</label>
                 <input type="text" id="name" name="name" required>
 
@@ -202,6 +298,39 @@
                 }
             });
         }
+
+        // Alternância de tema
+        const themeBtn = document.getElementById('toggleTheme');
+        themeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.body.classList.toggle('dark-mode');
+            // Salva preferência no localStorage
+            if(document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        // Carrega preferência ao abrir
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Alternância de idioma (exemplo simples)
+        const langBtn = document.getElementById('toggleLang');
+        const langLabel = document.getElementById('langLabel');
+        langBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if(langLabel.textContent === 'PT-BR') {
+                langLabel.textContent = 'EN-US';
+                // Aqui você pode trocar textos da página para inglês
+                // Exemplo: document.querySelector('.hero-content h1').textContent = "Hello, I'm Leeksxy";
+            } else {
+                langLabel.textContent = 'PT-BR';
+                // Volta para português
+                // Exemplo: document.querySelector('.hero-content h1').textContent = "Olá, eu sou a Leeksxy";
+            }
+        });
     </script>
 </body>
 
